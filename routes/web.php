@@ -1,20 +1,29 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin;
+use App\Http\Controllers\Captain;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// ── Rutas Admin ──────────────────────────────────────────────
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('tournaments', Admin\TournamentController::class);
+    Route::resource('teams', Admin\TeamController::class);
+    Route::resource('matches', Admin\MatchController::class);
+    Route::post('tournaments/{tournament}/fixture', [Admin\TournamentController::class, 'generateFixture'])->name('tournaments.fixture');
+    Route::get('tournaments/{tournament}/pdf/fixture', [Admin\PdfController::class, 'fixture'])->name('tournaments.pdf.fixture');
+    Route::get('tournaments/{tournament}/pdf/standings', [Admin\PdfController::class, 'standings'])->name('tournaments.pdf.standings');
+    Route::get('tournaments/{tournament}/chart-data', [Admin\DashboardController::class, 'chartData'])->name('chart-data');
+});
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// ── Rutas Captain ─────────────────────────────────────────────
+Route::middleware(['auth', 'role:captain'])->prefix('captain')->name('captain.')->group(function () {
+    Route::get('/dashboard', [Captain\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/team', [Captain\TeamController::class, 'show'])->name('team.show');
 });
 
 require __DIR__.'/auth.php';
