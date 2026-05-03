@@ -26,4 +26,14 @@ Route::middleware(['auth', 'role:captain'])->prefix('captain')->name('captain.')
     Route::get('/team', [Captain\TeamController::class, 'show'])->name('team.show');
 });
 
+Route::get('/dashboard', function () {
+    if (auth()->user()->hasRole('admin')) {
+        return redirect()->route('admin.dashboard');
+    }
+    if (auth()->user()->hasRole('captain')) {
+        return redirect()->route('captain.dashboard');
+    }
+    return redirect('/');
+})->middleware(['auth'])->name('dashboard');
+
 require __DIR__.'/auth.php';
