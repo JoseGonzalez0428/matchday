@@ -3,63 +3,88 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TeamController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $teams = Team::with('captain')->latest()->paginate(15);
+        return view('admin.teams.index', compact('teams'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $users = User::role('captain')->get();
+        return view('admin.teams.create', compact('users'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name'       => 'required|string|max:100',
+            'captain_id' => 'nullable|exists:users,id',
+            'country'    => 'nullable|string|max:60',
+            'shield'     => 'nullable|image|max:2048',
+        ]);
+
+        if ($request->hasFile('shield')) {
+            $validated['shield_url'] = $request->file('shield')->store('shields', 'public');
+        }
+
+        unset($validated['shield']);
+        Team::create($validated);
+
+        return redirect()->route('admin.teams.index')
+            ->with('success', 'Equipo creado exitosamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Team $team)
     {
-        //
+        $team->load('players', 'captain');
+        return view('admin.teams.show', compact('team'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Team $team)
     {
-        //
+        $users = User::role('captain')->get();
+        return view('admin.teams.edit', compact('team', 'users'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Team $team)
     {
-        //
+        $validated = $request->validate([
+            'name'       => 'required|string|max:100',
+            'captain_id' => 'nullable|exists:users,id',
+            'country'    => 'nullable|string|max:60',
+            'shield'     => 'nullable|image|max:2048',
+        ]);
+
+        if ($request->hasFile('shield')) {
+            if ($team->shield_url) {
+                Storage::disk('public')->delete($team->shield_url);
+            }
+            $validated['shield_url'] = $request->file('shield')->store('shields', 'public');
+        }
+
+        unset($validated['shield']);
+        $team->update($validated);
+
+        return redirect()->route('admin.teams.show', $team)
+            ->with('success', 'Equipo actualizado exitosamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Team $team)
     {
-        //
+        if ($team->shield_url) {
+            Storage::disk('public')->delete($team->shield_url);
+        }
+        $team->delete();
+
+        return redirect()->route('admin.teams.index')
+            ->with('success', 'Equipo eliminado exitosamente.');
     }
 }
