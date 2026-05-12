@@ -15,6 +15,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('teams', Admin\TeamController::class);
     Route::resource('matches', Admin\MatchController::class);
     Route::post('tournaments/{tournament}/fixture', [Admin\TournamentController::class, 'generateFixture'])->name('tournaments.fixture');
+    Route::post('tournaments/{tournament}/next-round', [Admin\TournamentController::class, 'generateNextRound'])->name('tournaments.next-round');
     Route::get('tournaments/{tournament}/pdf/fixture', [Admin\PdfController::class, 'fixture'])->name('tournaments.pdf.fixture');
     Route::get('tournaments/{tournament}/pdf/standings', [Admin\PdfController::class, 'standings'])->name('tournaments.pdf.standings');
     Route::get('tournaments/{tournament}/chart-data', [Admin\DashboardController::class, 'chartData'])->name('chart-data');

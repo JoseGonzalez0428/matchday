@@ -89,4 +89,27 @@ class TournamentController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
+
+    public function generateNextRound(Tournament $tournament)
+    {
+        try {
+            $count = app(FixtureService::class)->generateNextRound(
+                $tournament,
+                app(StandingsService::class)
+            );
+
+            $stage = $tournament->matches()->latest()->first()->stage;
+            $stageNames = [
+                'quarter' => 'Cuartos de final',
+                'semi'    => 'Semifinales',
+                'final'   => 'Final',
+            ];
+
+            return back()->with('success', 
+                ($stageNames[$stage] ?? $stage) . " generadas: {$count} partidos."
+            );
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
 }

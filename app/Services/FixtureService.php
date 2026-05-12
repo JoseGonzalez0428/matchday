@@ -65,4 +65,96 @@ class FixtureService
             ]);
         }
     }
+
+    public function generateNextRound(Tournament $tournament, StandingsService $standings): int
+    {
+        $standingsData = $standings->calculate($tournament);
+        $groupNames = array_keys($standingsData);
+
+        if (count($groupNames) < 2) {
+            throw new \Exception("Se necesitan al menos 2 grupos para generar la siguiente fase.");
+        }
+
+        // Determinar la siguiente fase
+        $hasGroupMatches = $tournament->matches()->where('stage', 'group')->exists();
+        $hasSemi = $tournament->matches()->where('stage', 'semi')->exists();
+        $hasQuarter = $tournament->matches()->where('stage', 'quarter')->exists();
+
+        if (!$hasGroupMatches) {
+            throw new \Exception("No hay partidos de grupos registrados.");
+        }
+
+        $pendingGroups = $tournament->matches()
+            ->where('stage', 'group')
+            ->where('status', '!=', 'finished')
+            ->exists();
+
+        if ($pendingGroups) {
+            throw new \Exception("Aún hay partidos de grupos pendientes por jugar.");
+        }
+
+        $pendingSemis = $tournament->matches()
+            ->where('stage', 'semi')
+            ->where('status', '!=', 'finished')
+            ->count();
+
+        $finishedSemis = $tournament->matches()
+            ->where('stage', 'semi')
+            ->where('status', 'finished')
+            ->count();
+
+        if (!$hasQuarter && !$hasSemi) {
+            $stage = count($groupNames) > 4 ? 'quarter' : 'semi';
+        } elseif ($hasQuarter && !$hasSemi) {
+            $stage = 'semi';
+        } elseif ($hasSemi && $pendingSemis > 0) {
+            throw new \Exception("Aún hay semifinales pendientes por jugar.");
+        } elseif ($hasSemi && $finishedSemis >= 2 && !$tournament->matches()->where('stage', 'final')->exists()) {
+            $stage = 'final';
+        } else {
+            throw new \Exception("El torneo ya está en fase final.");
+        }
+
+        // Generar cruces 1°A vs 2°B, 1°B vs 2°A
+        $fixtures = [];
+        $startDate = \Carbon\Carbon::now()->addDays(3);
+
+        if ($stage === 'semi' || $stage === 'quarter') {
+            for ($i = 0; $i < count($groupNames); $i++) {
+                $groupA = $groupNames[$i];
+                $groupB = $groupNames[($i + 1) % count($groupNames)];
+
+                if (!isset($standingsData[$groupA][0]) || !isset($standingsData[$groupB][1])) {
+                    throw new \Exception("No hay suficientes equipos clasificados.");
+                }
+
+                $fixtures[] = [
+                    'home' => $standingsData[$groupA][0]['team'],
+                    'away' => $standingsData[$groupB][1]['team'],
+                ];
+            }
+        } elseif ($stage === 'final') {
+            $semiWinners = $tournament->matches()
+                ->where('stage', 'semi')
+                ->where('status', 'finished')
+                ->get();
+
+            if ($semiWinners->count() < 2) {
+                throw new \Exception("Aún hay semifinales pendientes.");
+            }
+
+            foreach ($semiWinners as $semi) {
+                $winner = $semi->home_score > $semi->away_score
+                    ? $semi->homeTeam
+                    : $semi->awayTeam;
+                $fixtures[] = $winner;
+            }
+
+            $fixtures = [['home' => $fixtures[0], 'away' => $fixtures[1]]];
+        }
+
+        $this->generateKnockoutRound($tournament, $fixtures, $stage, $startDate);
+
+        return count($fixtures);
+    }
 }

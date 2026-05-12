@@ -1,5 +1,5 @@
 <x-mail::message>
-# ¡Inscripción confirmada! 🎉
+# ¡Inscripción confirmada! 
 
 Hola **{{ $team->captain->name ?? 'Capitán' }}**,
 
@@ -15,5 +15,5 @@ Ver mi dashboard
 ¡Mucha suerte en el torneo!
 
 Saludos,
-**El equipo de MatchDay** ⚽
+**El equipo de MatchDay** 
 </x-mail::message>

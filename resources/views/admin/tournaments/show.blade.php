@@ -29,6 +29,14 @@
                 ⚡ Generar Fixture
             </button>
         </form>
+        @else
+        <form method="POST" action="{{ route('admin.tournaments.next-round', $tournament) }}">
+            @csrf
+            <button type="submit"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+                ⚡ Generar siguiente fase
+            </button>
+        </form>
         @endif
     </div>
 </div>

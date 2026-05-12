@@ -1,5 +1,5 @@
 <x-mail::message>
-# Resultado del partido ⚽
+# Resultado del partido 
 
 Se ha registrado el resultado del siguiente partido:
 
@@ -18,5 +18,5 @@ Ver mi dashboard
 </x-mail::button>
 
 Saludos,
-**El equipo de MatchDay** ⚽
+**El equipo de MatchDay**
 </x-mail::message>
