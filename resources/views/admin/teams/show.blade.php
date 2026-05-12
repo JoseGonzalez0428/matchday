@@ -19,6 +19,10 @@
         </div>
     </div>
     <div class="flex gap-2">
+        <a href="{{ route('admin.teams.players.index', $team) }}"
+        class="bg-green-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-800">
+            👤 Jugadores
+        </a>
         <a href="{{ route('admin.teams.edit', $team) }}"
            class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
             Editar
