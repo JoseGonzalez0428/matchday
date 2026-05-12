@@ -7,6 +7,8 @@ use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Mail\TeamRegisteredMail;
+use Illuminate\Support\Facades\Mail;
 
 class TeamController extends Controller
 {
@@ -36,7 +38,14 @@ class TeamController extends Controller
         }
 
         unset($validated['shield']);
-        Team::create($validated);
+        $team = Team::create($validated);
+
+        // Enviar correo al capitán si tiene uno asignado
+        if ($team->captain && $team->captain->email) {
+            $tournament = \App\Models\Tournament::where('status', 'active')->latest()->first();
+            Mail::to($team->captain->email)
+                ->send(new TeamRegisteredMail($team, $tournament));
+            }
 
         return redirect()->route('admin.teams.index')
             ->with('success', 'Equipo creado exitosamente.');

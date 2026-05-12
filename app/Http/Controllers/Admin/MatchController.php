@@ -7,6 +7,8 @@ use App\Models\TournamentMatch;
 use App\Models\Tournament;
 use App\Models\Goal;
 use Illuminate\Http\Request;
+use App\Mail\MatchResultMail;
+use Illuminate\Support\Facades\Mail;
 
 class MatchController extends Controller
 {
@@ -46,6 +48,17 @@ class MatchController extends Controller
             'away_score' => $validated['away_score'],
             'status'     => 'finished',
         ]);
+
+        // Notificar a los capitanes
+        $match->load(['homeTeam.captain', 'awayTeam.captain', 'tournament']);
+        if ($match->homeTeam->captain) {
+            Mail::to($match->homeTeam->captain->email)
+                ->send(new MatchResultMail($match));
+        }
+        if ($match->awayTeam->captain) {
+            Mail::to($match->awayTeam->captain->email)
+                ->send(new MatchResultMail($match));
+        }
 
         // Reemplazar goles
         $match->goals()->delete();
