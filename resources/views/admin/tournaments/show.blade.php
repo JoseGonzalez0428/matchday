@@ -120,10 +120,17 @@
                 @endif
             </span>
             <span class="font-medium w-1/3">{{ $match->awayTeam->name }}</span>
-            <a href="{{ route('admin.matches.edit', $match) }}"
-               class="text-xs text-blue-600 hover:underline ml-4">
-                {{ $match->status === 'finished' ? 'Ver' : 'Cargar resultado' }}
-            </a>
+            @if($match->status === 'finished')
+                <a href="{{ route('admin.matches.show', $match) }}"
+                class="text-xs text-green-700 hover:underline ml-4">
+                    Ver
+                </a>
+            @else
+                <a href="{{ route('admin.matches.edit', $match) }}"
+                class="text-xs text-blue-600 hover:underline ml-4">
+                    Cargar resultado
+                </a>
+            @endif
         </div>
         @endforeach
     </div>

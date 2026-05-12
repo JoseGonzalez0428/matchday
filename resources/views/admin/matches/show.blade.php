@@ -5,10 +5,17 @@
 @section('content')
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-3xl font-bold text-green-800">📅 Detalle del Partido</h1>
-    <a href="{{ route('admin.matches.edit', $match) }}"
-       class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
-        Editar resultado
-    </a>
+    @if($match->status !== 'finished')
+        <a href="{{ route('admin.matches.edit', $match) }}"
+        class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+            Cargar resultado
+        </a>
+    @else
+        <a href="{{ route('admin.matches.edit', $match) }}"
+        class="bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700">
+            Editar resultado
+        </a>
+    @endif
 </div>
 
 {{-- Resultado --}}
