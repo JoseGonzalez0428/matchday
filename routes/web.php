@@ -14,6 +14,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('tournaments', Admin\TournamentController::class);
     Route::resource('teams', Admin\TeamController::class);
     Route::resource('matches', Admin\MatchController::class);
+    Route::post('tournaments/{tournament}/groups', [Admin\TournamentController::class, 'addGroup'])->name('tournaments.groups.store');
+    Route::post('tournaments/{tournament}/groups/{group}/teams', [Admin\TournamentController::class, 'addTeamToGroup'])->name('tournaments.groups.teams.store');
+    Route::delete('tournaments/{tournament}/groups/{group}/teams/{team}', [Admin\TournamentController::class, 'removeTeamFromGroup'])->name('tournaments.groups.teams.destroy');
     Route::post('tournaments/{tournament}/fixture', [Admin\TournamentController::class, 'generateFixture'])->name('tournaments.fixture');
     Route::post('tournaments/{tournament}/next-round', [Admin\TournamentController::class, 'generateNextRound'])->name('tournaments.next-round');
     Route::get('tournaments/{tournament}/pdf/fixture', [Admin\PdfController::class, 'fixture'])->name('tournaments.pdf.fixture');

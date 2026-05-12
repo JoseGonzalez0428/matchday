@@ -64,6 +64,74 @@
     </div>
 </div>
 
+{{-- Gestión de grupos --}}
+@if($tournament->status === 'draft')
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-700">Grupos y Equipos</h2>
+        {{-- Formulario nuevo grupo --}}
+        <form method="POST" action="{{ route('admin.tournaments.groups.store', $tournament) }}"
+              class="flex gap-2">
+            @csrf
+            <input type="text" name="name" placeholder="Ej: A"
+                   maxlength="2"
+                   class="border rounded-lg px-3 py-2 text-sm w-20 focus:outline-none focus:ring-2 focus:ring-green-500">
+            <button type="submit"
+                    class="bg-green-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-800">
+                + Grupo
+            </button>
+        </form>
+    </div>
+
+    @if($tournament->groups->isEmpty())
+        <p class="text-gray-400 text-sm">No hay grupos creados. Agrega al menos uno para comenzar.</p>
+    @else
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            @foreach($tournament->groups as $group)
+            <div class="border rounded-xl p-4">
+                <h3 class="font-bold text-green-700 mb-3">Grupo {{ $group->name }}</h3>
+
+                {{-- Equipos del grupo --}}
+                @forelse($group->teams as $team)
+                <div class="flex items-center justify-between py-2 border-b last:border-0">
+                    <span class="text-sm font-medium">{{ $team->name }}</span>
+                    <form method="POST"
+                          action="{{ route('admin.tournaments.groups.teams.destroy', [$tournament, $group, $team]) }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-500 hover:text-red-700 text-xs">
+                            Quitar
+                        </button>
+                    </form>
+                </div>
+                @empty
+                    <p class="text-gray-400 text-xs mb-3">Sin equipos asignados.</p>
+                @endforelse
+
+                {{-- Agregar equipo al grupo --}}
+                <form method="POST"
+                      action="{{ route('admin.tournaments.groups.teams.store', [$tournament, $group]) }}"
+                      class="flex gap-2 mt-3">
+                    @csrf
+                    <select name="team_id"
+                            class="flex-1 border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">Selecciona un equipo</option>
+                        @foreach(\App\Models\Team::all() as $team)
+                            <option value="{{ $team->id }}">{{ $team->name }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit"
+                            class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm hover:bg-green-200">
+                        + Agregar
+                    </button>
+                </form>
+            </div>
+            @endforeach
+        </div>
+    @endif
+</div>
+@endif
+
 {{-- Tabla de posiciones --}}
 @if(!empty($standings))
 <div class="bg-white rounded-xl shadow p-6 mb-6">
@@ -129,12 +197,12 @@
             </span>
             <span class="font-medium w-1/3">{{ $match->awayTeam->name }}</span>
             @if($match->status === 'finished')
-                <a href="{{ route('admin.matches.show', $match) }}"
+                <a href="{{ route('admin.matches.show', $match) }}?from=tournament&id={{ $tournament->id }}"
                 class="text-xs text-green-700 hover:underline ml-4">
                     Ver
                 </a>
             @else
-                <a href="{{ route('admin.matches.edit', $match) }}"
+                <a href="{{ route('admin.matches.edit', $match) }}?from=tournament&id={{ $tournament->id }}"
                 class="text-xs text-blue-600 hover:underline ml-4">
                     Cargar resultado
                 </a>

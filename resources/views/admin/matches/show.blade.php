@@ -4,7 +4,20 @@
 
 @section('content')
 <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold text-green-800">📅 Detalle del Partido</h1>
+    <div class="flex items-center gap-3">
+        @if(request('from') === 'tournament' && request('id'))
+            <a href="{{ route('admin.tournaments.show', request('id')) }}"
+            class="text-gray-500 hover:text-gray-700 border rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
+                ← Volver al torneo
+            </a>
+        @else
+            <a href="{{ route('admin.matches.index') }}"
+            class="text-gray-500 hover:text-gray-700 border rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
+                ← Volver a partidos
+            </a>
+        @endif
+        <h1 class="text-3xl font-bold text-green-800">📅 Detalle del Partido</h1>
+    </div>
     @if($match->status !== 'finished')
         <a href="{{ route('admin.matches.edit', $match) }}"
         class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">

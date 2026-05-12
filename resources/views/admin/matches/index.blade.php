@@ -43,10 +43,13 @@
                     </span>
                 </td>
                 <td class="px-4 py-3 text-center">
-                    <a href="{{ route('admin.matches.edit', $match) }}"
-                       class="text-blue-600 hover:underline text-xs">
-                        {{ $match->status === 'finished' ? 'Ver' : 'Cargar resultado' }}
-                    </a>
+                    @if($match->status === 'finished')
+                        <a href="{{ route('admin.matches.show', $match) }}?from=matches"
+                        class="text-green-700 hover:underline text-xs">Ver</a>
+                    @else
+                        <a href="{{ route('admin.matches.edit', $match) }}?from=matches"
+                        class="text-blue-600 hover:underline text-xs">Cargar resultado</a>
+                    @endif
                 </td>
             </tr>
             @empty

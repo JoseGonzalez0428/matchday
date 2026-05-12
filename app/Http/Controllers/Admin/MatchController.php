@@ -73,8 +73,17 @@ class MatchController extends Controller
             }
         }
 
-        return redirect()->route('admin.matches.show', $match)
-            ->with('success', 'Resultado registrado exitosamente.');
+        $from = $request->input('from');
+        $id   = $request->input('id');
+
+        $url = route('admin.matches.show', $match);
+        if ($from && $id) {
+            $url .= "?from={$from}&id={$id}";
+        } elseif ($from) {
+            $url .= "?from={$from}";
+        }
+
+        return redirect($url)->with('success', 'Resultado registrado exitosamente.');
     }
 
     public function destroy(TournamentMatch $match)

@@ -112,4 +112,54 @@ class TournamentController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
+
+    public function addGroup(Request $request, Tournament $tournament)
+    {
+        $request->validate([
+            'name' => 'required|string|max:10|unique:groups,name,NULL,id,tournament_id,' . $tournament->id,
+        ]);
+
+        if ($tournament->matches()->exists()) {
+            return back()->with('error', 'No puedes agregar grupos después de generar el fixture.');
+        }
+
+        $tournament->groups()->create(['name' => strtoupper($request->name)]);
+
+        return back()->with('success', 'Grupo ' . strtoupper($request->name) . ' creado exitosamente.');
+    }
+
+    public function addTeamToGroup(Request $request, Tournament $tournament, \App\Models\Group $group)
+    {
+        $request->validate([
+            'team_id' => 'required|exists:teams,id',
+        ]);
+
+        if ($tournament->matches()->exists()) {
+            return back()->with('error', 'No puedes modificar grupos después de generar el fixture.');
+        }
+
+        // Verificar que el equipo no esté ya en otro grupo del mismo torneo
+        $alreadyInTournament = $tournament->groups()
+            ->whereHas('teams', fn($q) => $q->where('teams.id', $request->team_id))
+            ->exists();
+
+        if ($alreadyInTournament) {
+            return back()->with('error', 'Este equipo ya está en un grupo de este torneo.');
+        }
+
+        $group->teams()->attach($request->team_id);
+
+        return back()->with('success', 'Equipo agregado al grupo exitosamente.');
+    }
+
+    public function removeTeamFromGroup(Tournament $tournament, \App\Models\Group $group, \App\Models\Team $team)
+    {
+        if ($tournament->matches()->exists()) {
+            return back()->with('error', 'No puedes modificar grupos después de generar el fixture.');
+        }
+
+        $group->teams()->detach($team->id);
+
+        return back()->with('success', 'Equipo removido del grupo exitosamente.');
+    }
 }

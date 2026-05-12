@@ -12,7 +12,7 @@
 </div>
 
 <div class="bg-white rounded-xl shadow p-6 max-w-2xl">
-    <form method="POST" action="{{ route('admin.matches.update', $match) }}">
+    <form method="POST" action="{{ route('admin.matches.update', $match) }}?from={{ request('from') }}&id={{ request('id') }}">
         @csrf
         @method('PUT')
 
