@@ -32,4 +32,17 @@ class PdfController extends Controller
 
         return $pdf->download("standings-{$tournament->name}.pdf");
     }
+
+    public function bracket(Tournament $tournament)
+    {
+        $matches = $tournament->matches()
+            ->with(['homeTeam', 'awayTeam'])
+            ->get()
+            ->groupBy('stage');
+
+        $pdf = Pdf::loadView('pdf.bracket', compact('tournament', 'matches'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download("bracket-{$tournament->name}.pdf");
+    }
 }

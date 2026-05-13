@@ -9,10 +9,10 @@
         <p class="text-gray-500 mt-1">{{ $tournament->name }} · {{ $tournament->edition }}</p>
     </div>
     <div class="flex gap-2">
-        <button disabled
-                class="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg text-sm cursor-not-allowed">
-            📄 PDF Bracket
-        </button>
+        <a href="{{ route('admin.tournaments.pdf.bracket', $tournament) }}"
+            class="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800">
+                📄 PDF Bracket
+        </a>
         <a href="{{ route('admin.tournaments.show', $tournament) }}"
            class="px-4 py-2 rounded-lg border hover:bg-gray-50 text-gray-600 text-sm">
             ← Volver
