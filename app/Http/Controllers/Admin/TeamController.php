@@ -53,7 +53,7 @@ class TeamController extends Controller
 
     public function show(Team $team)
     {
-        $team->load('players', 'captain');
+        $team->load('players', 'captain', 'groups.tournament');
         return view('admin.teams.show', compact('team'));
     }
 
