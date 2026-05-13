@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'ai_analysis_enabled' => env('AI_ANALYSIS_ENABLED', false),
+
 ];

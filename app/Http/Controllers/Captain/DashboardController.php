@@ -33,12 +33,12 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
 
-            if ($nextMatch) {
-                //try {
-                //    $analysis = app(MatchAnalysisService::class)->analyze($team, $nextMatch);
-                //} catch (\Exception $e) {
-                //    $analysis = null;
-                //}
+            if ($nextMatch && config('app.ai_analysis_enabled', false)) {
+                try {
+                    $analysis = app(MatchAnalysisService::class)->analyze($team, $nextMatch);
+                } catch (\Exception $e) {
+                    $analysis = null;
+                }
             }
         }
 
