@@ -51,7 +51,7 @@
                 {{ $match->status === 'finished' ? 'bg-green-100 text-green-700' : '' }}
                 {{ $match->status === 'scheduled' ? 'bg-yellow-100 text-yellow-700' : '' }}
                 {{ $match->status === 'live' ? 'bg-red-100 text-red-700' : '' }}">
-                {{ ucfirst($match->status) }}
+                {{ \App\Helpers\StatusHelper::match($match->status) }}
             </span>
         </div>
         <div class="text-center w-1/3">
@@ -83,7 +83,7 @@
                         {{ $goal->type === 'regular' ? 'bg-green-100 text-green-700' : '' }}
                         {{ $goal->type === 'penalty' ? 'bg-blue-100 text-blue-700' : '' }}
                         {{ $goal->type === 'own_goal' ? 'bg-red-100 text-red-700' : '' }}">
-                        {{ ucfirst(str_replace('_', ' ', $goal->type)) }}
+                        {{ \App\Helpers\StatusHelper::goalType($goal->type) }}
                     </span>
                 </td>
             </tr>
@@ -101,7 +101,7 @@
     </div>
     <div class="bg-white rounded-xl shadow p-4">
         <p class="text-xs text-gray-500 uppercase">Grupo / Fase</p>
-        <p class="font-bold text-gray-700">{{ $match->group->name ?? ucfirst($match->stage) }}</p>
+        <p class="font-bold text-gray-700">{{ $match->group->name ?? \App\Helpers\StatusHelper::stage($match->stage) }}</p>
     </div>
 </div>
 @endsection

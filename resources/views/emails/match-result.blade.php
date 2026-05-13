@@ -11,7 +11,7 @@ Se ha registrado el resultado del siguiente partido:
 
 **Torneo:** {{ $match->tournament->name }}
 **Fecha:** {{ \Carbon\Carbon::parse($match->played_at)->format('d/m/Y H:i') }}
-**Fase:** {{ ucfirst($match->stage) }}
+**Fase:** {{ \App\Helpers\StatusHelper::stage($match->stage) }}
 
 <x-mail::button url="{{ url('/captain/dashboard') }}" color="success">
 Ver mi dashboard

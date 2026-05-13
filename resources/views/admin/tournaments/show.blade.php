@@ -49,7 +49,7 @@
             {{ $tournament->status === 'active' ? 'text-green-700' : '' }}
             {{ $tournament->status === 'draft' ? 'text-yellow-600' : '' }}
             {{ $tournament->status === 'finished' ? 'text-gray-500' : '' }}">
-            {{ ucfirst($tournament->status) }}
+            {{ \App\Helpers\StatusHelper::tournament($tournament->status) }}
         </p>
     </div>
     <div class="bg-white rounded-xl shadow p-4">

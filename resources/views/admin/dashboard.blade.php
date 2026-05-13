@@ -41,7 +41,7 @@
                             {{ $tournament->status === 'active' ? 'bg-green-100 text-green-700' : '' }}
                             {{ $tournament->status === 'draft' ? 'bg-yellow-100 text-yellow-700' : '' }}
                             {{ $tournament->status === 'finished' ? 'bg-gray-100 text-gray-600' : '' }}">
-                            {{ ucfirst($tournament->status) }}
+                            {{ \App\Helpers\StatusHelper::tournament($tournament->status) }}
                         </span>
                     </td>
                     <td class="px-4 py-3">{{ $tournament->starts_at->format('d/m/Y') }}</td>

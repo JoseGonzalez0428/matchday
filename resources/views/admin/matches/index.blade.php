@@ -39,7 +39,7 @@
                         {{ $match->status === 'finished' ? 'bg-green-100 text-green-700' : '' }}
                         {{ $match->status === 'scheduled' ? 'bg-yellow-100 text-yellow-700' : '' }}
                         {{ $match->status === 'live' ? 'bg-red-100 text-red-700' : '' }}">
-                        {{ ucfirst($match->status) }}
+                        {{ \App\Helpers\StatusHelper::match($match->status) }}
                     </span>
                 </td>
                 <td class="px-4 py-3 text-center">

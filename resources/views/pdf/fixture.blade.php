@@ -50,7 +50,7 @@
                         </td>
                         <td style="text-align:left;">{{ $match->awayTeam->name }}</td>
                         <td>{{ $match->played_at->format('d/m/Y H:i') }}</td>
-                        <td class="status-{{ $match->status }}">{{ ucfirst($match->status) }}</td>
+                        <td class="status-{{ $match->status }}">{{ \App\Helpers\StatusHelper::match($match->status) }}</td>
                     </tr>
                 @endforeach
             </tbody>
