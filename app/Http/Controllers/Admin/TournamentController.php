@@ -163,7 +163,9 @@ class TournamentController extends Controller
 
             // Si la final ya se jugó, marcar torneo como finalizado
             $tournament->update(['status' => 'finished']);
-            return back()->with('success', '¡El torneo ha finalizado!');
+return redirect()->route('admin.tournaments.show', $tournament)
+    ->with('success', '¡El torneo ha finalizado!')
+    ->with('show_champion', true);
         }
 
         try {

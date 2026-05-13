@@ -34,13 +34,39 @@
             </button>
         </form>
         @else
-        <form method="POST" action="{{ route('admin.tournaments.next-round', $tournament) }}">
-            @csrf
-            <button type="submit"
-                    class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
-                ⚡ Generar siguiente fase
-            </button>
-        </form>
+            @php
+                $finalMatch = $tournament->matches()->where('stage', 'final')->where('status', 'finished')->first();
+            @endphp
+
+            @if($finalMatch)
+                {{-- Torneo terminado, mostrar campeón --}}
+                @php
+                    $champion = $finalMatch->home_score > $finalMatch->away_score
+                        ? $finalMatch->homeTeam
+                        : $finalMatch->awayTeam;
+                @endphp
+                <button onclick="document.getElementById('champion-modal').classList.remove('hidden')"
+                        class="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-yellow-600">
+                    🏆 Ver Campeón
+                </button>
+                @if($tournament->status !== 'finished')
+                <form method="POST" action="{{ route('admin.tournaments.next-round', $tournament) }}">
+                    @csrf
+                    <button type="submit"
+                            class="bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700">
+                        ✅ Finalizar torneo
+                    </button>
+                </form>
+                @endif
+            @else
+                <form method="POST" action="{{ route('admin.tournaments.next-round', $tournament) }}">
+                    @csrf
+                    <button type="submit"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+                        ⚡ Generar siguiente fase
+                    </button>
+                </form>
+            @endif
         @endif
     </div>
 </div>
@@ -232,5 +258,57 @@
     </div>
     @endforeach
 </div>
+@endif
+
+{{-- Modal Campeón --}}
+@if(isset($champion))
+    <div id="champion-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center"
+        onclick="this.classList.add('hidden')">
+        <div class="absolute inset-0 bg-black bg-opacity-75"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl p-10 text-center max-w-sm mx-4 transform transition-all"
+            onclick="event.stopPropagation()">
+
+            <button onclick="document.getElementById('champion-modal').classList.add('hidden')"
+                    class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">✕</button>
+
+            <div class="text-6xl mb-4">🏆</div>
+            <h2 class="text-2xl font-bold text-yellow-600 mb-2">¡Campeón!</h2>
+            <p class="text-gray-500 text-sm mb-6">{{ $tournament->name }} {{ $tournament->edition }}</p>
+
+            @if($champion->shield_url)
+                <img src="{{ Storage::url($champion->shield_url) }}"
+                    class="w-28 h-28 rounded-full object-cover border-4 border-yellow-400 shadow-lg mx-auto mb-4">
+            @else
+                <div class="w-28 h-28 rounded-full bg-yellow-100 border-4 border-yellow-400
+                            flex items-center justify-center text-yellow-700 font-bold text-4xl
+                            shadow-lg mx-auto mb-4">
+                    {{ strtoupper(substr($champion->name, 0, 2)) }}
+                </div>
+            @endif
+
+            <h3 class="text-3xl font-bold text-gray-800 mb-1">{{ $champion->name }}</h3>
+            <p class="text-yellow-500 font-medium">
+                {{ $finalMatch->home_score }} - {{ $finalMatch->away_score }}
+            </p>
+            <p class="text-gray-400 text-sm mt-1">
+                vs {{ $finalMatch->home_score > $finalMatch->away_score ? $finalMatch->awayTeam->name : $finalMatch->homeTeam->name }}
+            </p>
+
+            <button onclick="document.getElementById('champion-modal').classList.add('hidden')"
+                    class="mt-6 bg-yellow-500 text-white px-8 py-2 rounded-lg hover:bg-yellow-600 font-medium">
+                ¡Celebrar! 🎉
+            </button>
+        </div>
+    </div>
+
+    {{-- Mostrar automáticamente si se acaba de finalizar --}}
+    @if(session('show_champion'))
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('champion-modal').classList.remove('hidden');
+        });
+    </script>
+    @endif
 @endif
 @endsection
