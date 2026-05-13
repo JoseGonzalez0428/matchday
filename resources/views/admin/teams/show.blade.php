@@ -7,7 +7,8 @@
     <div class="flex items-center gap-4">
         @if($team->shield_url)
             <img src="{{ Storage::url($team->shield_url) }}"
-                 class="w-16 h-16 rounded-full object-cover border-2 border-green-200">
+            class="w-16 h-16 rounded-full object-cover border-2 border-green-200 cursor-pointer hover:opacity-90 transition-opacity"
+            onclick="openModal()">
         @else
             <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-xl">
                 {{ strtoupper(substr($team->name, 0, 2)) }}
@@ -93,4 +94,46 @@
         </table>
     @endif
 </div>
+
+{{-- Modal escudo --}}
+<div id="shield-modal"
+     class="fixed inset-0 flex items-center justify-center z-50 pointer-events-none opacity-0 transition-opacity duration-300"
+     onclick="closeModal()">
+    <div class="absolute inset-0 bg-black bg-opacity-75"></div>
+    <div class="relative transform scale-75 transition-transform duration-300" 
+         id="shield-modal-content"
+         onclick="event.stopPropagation()">
+        <img src="{{ $team->shield_url ? Storage::url($team->shield_url) : '' }}"
+             class="max-w-sm max-h-screen rounded-2xl shadow-2xl object-contain">
+        <button onclick="closeModal()"
+                class="absolute -top-3 -right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 shadow-lg">
+            ✕
+        </button>
+    </div>
+</div>
+
+<script>
+function openModal() {
+    const modal = document.getElementById('shield-modal');
+    const content = document.getElementById('shield-modal-content');
+    modal.classList.remove('pointer-events-none', 'opacity-0');
+    modal.classList.add('pointer-events-auto', 'opacity-100');
+    content.classList.remove('scale-75');
+    content.classList.add('scale-100');
+}
+
+function closeModal() {
+    const modal = document.getElementById('shield-modal');
+    const content = document.getElementById('shield-modal-content');
+    modal.classList.remove('pointer-events-auto', 'opacity-100');
+    modal.classList.add('pointer-events-none', 'opacity-0');
+    content.classList.remove('scale-100');
+    content.classList.add('scale-75');
+}
+
+// Cerrar con ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+});
+</script>
 @endsection

@@ -21,6 +21,7 @@
             <a href="{{ route('admin.tournaments.index') }}" class="hover:text-green-300">Torneos</a>
             <a href="{{ route('admin.teams.index') }}" class="hover:text-green-300">Equipos</a>
             <a href="{{ route('admin.matches.index') }}" class="hover:text-green-300">Partidos</a>
+            <a href="{{ route('admin.users.index') }}" class="hover:text-green-300">Capitanes</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="hover:text-red-300">Cerrar sesión</button>
