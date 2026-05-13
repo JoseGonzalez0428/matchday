@@ -38,11 +38,11 @@
                 <td class="px-4 py-3 font-medium">{{ $player->name }}</td>
                 <td class="px-4 py-3">
                     <span class="px-2 py-1 rounded text-xs font-medium
-                        {{ $player->position === 'GK' ? 'bg-yellow-100 text-yellow-700' : '' }}
+                        {{ $player->position === 'GK'  ? 'bg-yellow-100 text-yellow-700' : '' }}
                         {{ $player->position === 'DEF' ? 'bg-blue-100 text-blue-700' : '' }}
                         {{ $player->position === 'MID' ? 'bg-green-100 text-green-700' : '' }}
                         {{ $player->position === 'FWD' ? 'bg-red-100 text-red-700' : '' }}">
-                        {{ $player->position }}
+                        {{ \App\Helpers\StatusHelper::position($player->position) }}
                     </span>
                 </td>
                 <td class="px-4 py-3 text-gray-500">{{ $player->nationality ?? '—' }}</td>
