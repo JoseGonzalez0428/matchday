@@ -44,6 +44,54 @@
             </div>
         </div>
 
+        {{-- Penales (solo eliminatorias) --}}
+        @if(in_array($match->stage, ['round32', 'quarter', 'semi', 'final']))
+        <div id="penalties-section" class="{{ ($match->home_score === $match->away_score && $match->status === 'finished') ? '' : 'hidden' }} bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+            <h3 class="font-bold text-blue-700 mb-3">⚽ Resultado de Penales</h3>
+            <p class="text-blue-600 text-xs mb-3">Este partido eliminatorio terminó en empate. Registra el marcador de penales.</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Penales — {{ $match->homeTeam->name }}
+                    </label>
+                    <input type="number" name="home_penalties" min="0"
+                        value="{{ old('home_penalties', $match->home_penalties) }}"
+                        class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Penales — {{ $match->awayTeam->name }}
+                    </label>
+                    <input type="number" name="away_penalties" min="0"
+                        value="{{ old('away_penalties', $match->away_penalties) }}"
+                        class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const homeScore = document.querySelector('input[name="home_score"]');
+            const awayScore = document.querySelector('input[name="away_score"]');
+            const penaltiesSection = document.getElementById('penalties-section');
+
+            function checkDraw() {
+                const home = parseInt(homeScore.value) || 0;
+                const away = parseInt(awayScore.value) || 0;
+                if (home === away) {
+                    penaltiesSection.classList.remove('hidden');
+                } else {
+                    penaltiesSection.classList.add('hidden');
+                }
+            }
+
+            homeScore.addEventListener('input', checkDraw);
+            awayScore.addEventListener('input', checkDraw);
+            checkDraw();
+        });
+        </script>
+        @endif
+
         {{-- Goles detallados --}}
         <div class="mb-6">
             <div class="flex justify-between items-center mb-3">

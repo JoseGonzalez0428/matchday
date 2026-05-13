@@ -40,10 +40,22 @@
         </div>
         <div class="text-center">
             @if($match->status === 'finished')
-                <p class="text-5xl font-bold text-green-700">
-                    {{ $match->home_score }} — {{ $match->away_score }}
+            <p class="text-5xl font-bold text-green-700">
+                {{ $match->home_score }} — {{ $match->away_score }}
+            </p>
+            @if(!is_null($match->home_penalties))
+                <p class="text-sm text-blue-600 mt-1 font-medium">
+                    Penales: {{ $match->home_penalties }} — {{ $match->away_penalties }}
                 </p>
-            @else
+                <p class="text-xs text-gray-400 mt-1">
+                    @if($match->home_penalties > $match->away_penalties)
+                        {{ $match->homeTeam->name }} avanza por penales
+                    @else
+                        {{ $match->awayTeam->name }} avanza por penales
+                    @endif
+                </p>
+            @endif
+        @else
                 <p class="text-2xl font-bold text-gray-400">vs</p>
                 <p class="text-sm text-gray-400 mt-1">{{ $match->played_at->format('d/m/Y H:i') }}</p>
             @endif

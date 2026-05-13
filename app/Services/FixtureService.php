@@ -200,9 +200,13 @@ class FixtureService
                 } else {
                     // Viene de cuartos — emparejar ganador C1 vs C2, C3 vs C4
                     $quarterMatches = $quarterMatches->sortBy('id')->values();
-                    $winners = $quarterMatches->map(fn($m) =>
-                        $m->home_score > $m->away_score ? $m->homeTeam : $m->awayTeam
-                    )->values();
+                    $winners = $quarterMatches->map(function($m) {
+                        // Si hay penales, el ganador se determina por penales
+                        if (!is_null($m->home_penalties)) {
+                            return $m->home_penalties > $m->away_penalties ? $m->homeTeam : $m->awayTeam;
+                        }
+                        return $m->home_score > $m->away_score ? $m->homeTeam : $m->awayTeam;
+                    })->values();
 
                     // Emparejar consecutivamente: G1 vs G2, G3 vs G4
                     for ($i = 0; $i < $winners->count(); $i += 2) {
@@ -226,9 +230,12 @@ class FixtureService
                 throw new \Exception("Aún hay semifinales pendientes por jugar.");
             }
 
-            $winners = $semiMatches->map(fn($m) =>
-                $m->home_score > $m->away_score ? $m->homeTeam : $m->awayTeam
-            );
+            $winners = $semiMatches->map(function($m) {
+                if (!is_null($m->home_penalties)) {
+                    return $m->home_penalties > $m->away_penalties ? $m->homeTeam : $m->awayTeam;
+                }
+                return $m->home_score > $m->away_score ? $m->homeTeam : $m->awayTeam;
+            });
 
             $fixtures = [['home' => $winners[0], 'away' => $winners[1]]];
         }

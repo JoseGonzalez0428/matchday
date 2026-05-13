@@ -18,6 +18,8 @@ class TournamentMatch extends Model
         'away_team_id',
         'home_score',
         'away_score',
+        'home_penalties',
+        'away_penalties',
         'played_at',
         'stage',
         'status',
@@ -29,9 +31,11 @@ class TournamentMatch extends Model
             'played_at'  => 'datetime',
             'home_score' => 'integer',
             'away_score' => 'integer',
+            'home_penalties' => 'integer',
+            'away_penalties' => 'integer',
         ];
     }
-
+    
     public function tournament(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Tournament::class);

@@ -98,9 +98,9 @@
                 {{-- Campeón --}}
                 @if($match->status === 'finished')
                     @php
-                        $champion = $match->home_score > $match->away_score
-                            ? $match->homeTeam
-                            : $match->awayTeam;
+                        $champion = !is_null($match->home_penalties)
+                            ? ($match->home_penalties > $match->away_penalties ? $match->homeTeam : $match->awayTeam)
+                            : ($match->home_score > $match->away_score ? $match->homeTeam : $match->awayTeam);
                     @endphp
                     <div class="flex flex-col items-center gap-3 ml-4">
                         @if($champion->shield_url)

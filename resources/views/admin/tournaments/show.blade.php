@@ -41,9 +41,9 @@
             @if($finalMatch)
                 {{-- Torneo terminado, mostrar campeón --}}
                 @php
-                    $champion = $finalMatch->home_score > $finalMatch->away_score
-                        ? $finalMatch->homeTeam
-                        : $finalMatch->awayTeam;
+                    $champion = !is_null($finalMatch->home_penalties)
+                        ? ($finalMatch->home_penalties > $finalMatch->away_penalties ? $finalMatch->homeTeam : $finalMatch->awayTeam)
+                        : ($finalMatch->home_score > $finalMatch->away_score ? $finalMatch->homeTeam : $finalMatch->awayTeam);
                 @endphp
                 <button onclick="document.getElementById('champion-modal').classList.remove('hidden')"
                         class="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-yellow-600">
