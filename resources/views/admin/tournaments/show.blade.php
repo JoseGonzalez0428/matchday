@@ -236,7 +236,12 @@
             <span class="font-medium w-1/3 text-right">{{ $match->homeTeam->name }}</span>
             <span class="mx-4 text-gray-500 text-sm">
                 @if($match->status === 'finished')
-                    <span class="font-bold text-gray-800">{{ $match->home_score }} - {{ $match->away_score }}</span>
+                    <div class="text-center">
+                        <span class="font-bold text-gray-800">{{ $match->home_score }} - {{ $match->away_score }}</span>
+                        @if(!is_null($match->home_penalties))
+                            <span class="text-xs text-blue-600 block">({{ $match->home_penalties }}-{{ $match->away_penalties }} pen)</span>
+                        @endif
+                    </div>
                 @else
                     <span class="text-xs">{{ $match->played_at->format('d/m H:i') }}</span>
                 @endif
@@ -292,7 +297,7 @@
                 {{ $finalMatch->home_score }} - {{ $finalMatch->away_score }}
             </p>
             <p class="text-gray-400 text-sm mt-1">
-                vs {{ $finalMatch->home_score > $finalMatch->away_score ? $finalMatch->awayTeam->name : $finalMatch->homeTeam->name }}
+                vs {{ $champion->id === $finalMatch->homeTeam->id ? $finalMatch->awayTeam->name : $finalMatch->homeTeam->name }}
             </p>
 
             <button onclick="document.getElementById('champion-modal').classList.add('hidden')"
