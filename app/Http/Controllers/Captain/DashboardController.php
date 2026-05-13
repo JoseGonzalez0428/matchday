@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Captain;
 
 use App\Http\Controllers\Controller;
 use App\Models\TournamentMatch;
+use App\Services\MatchAnalysisService;
 
 class DashboardController extends Controller
 {
@@ -12,8 +13,9 @@ class DashboardController extends Controller
         $user = auth()->user();
         $team = $user->team;
 
-        $nextMatch = null;
+        $nextMatch     = null;
         $recentMatches = collect();
+        $analysis      = null;
 
         if ($team) {
             $nextMatch = TournamentMatch::where('status', 'scheduled')
@@ -30,8 +32,16 @@ class DashboardController extends Controller
                 ->with(['homeTeam', 'awayTeam'])
                 ->take(5)
                 ->get();
+
+            if ($nextMatch) {
+                //try {
+                //    $analysis = app(MatchAnalysisService::class)->analyze($team, $nextMatch);
+                //} catch (\Exception $e) {
+                //    $analysis = null;
+                //}
+            }
         }
 
-        return view('captain.dashboard', compact('team', 'nextMatch', 'recentMatches'));
+        return view('captain.dashboard', compact('team', 'nextMatch', 'recentMatches', 'analysis'));
     }
 }

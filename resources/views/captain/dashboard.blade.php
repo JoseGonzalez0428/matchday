@@ -66,6 +66,22 @@
 </div>
 @endif
 
+{{-- Análisis IA --}}
+@if($nextMatch && isset($analysis) && $analysis)
+<div class="bg-white rounded-xl shadow p-6 mb-6 border-l-4 border-green-500">
+    <div class="flex items-center gap-2 mb-3">
+        <span class="text-2xl">🤖</span>
+        <h2 class="text-xl font-bold text-gray-700">Análisis del próximo partido</h2>
+        <span class="ml-auto text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+            Powered by Gemini AI
+        </span>
+    </div>
+    <div class="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
+        {{ $analysis }}
+    </div>
+</div>
+@endif
+
 {{-- Últimos resultados --}}
 @if($recentMatches->isNotEmpty())
 <div class="bg-white rounded-xl shadow p-6 mb-6">
