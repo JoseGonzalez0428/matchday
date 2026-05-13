@@ -49,6 +49,36 @@ class MatchController extends Controller
             'status'     => 'finished',
         ]);
 
+        // Validar coherencia de goles con marcador
+        if (!empty($validated['goals'])) {
+            $homePlayerIds = $match->homeTeam->players->pluck('id')->toArray();
+            $awayPlayerIds = $match->awayTeam->players->pluck('id')->toArray();
+
+            $homeGoals = 0;
+            $awayGoals = 0;
+
+            foreach ($validated['goals'] as $goal) {
+                $playerId = $goal['player_id'] ?? null;
+                $type = $goal['type'];
+
+                if (!$playerId) continue;
+
+                if ($type === 'own_goal') {
+                    if (in_array($playerId, $homePlayerIds)) $awayGoals++;
+                    else if (in_array($playerId, $awayPlayerIds)) $homeGoals++;
+                } else {
+                    if (in_array($playerId, $homePlayerIds)) $homeGoals++;
+                    else if (in_array($playerId, $awayPlayerIds)) $awayGoals++;
+                }
+            }
+
+            if ($homeGoals > $validated['home_score'] || $awayGoals > $validated['away_score']) {
+                return back()
+                ->withInput()
+                ->with('error', 'Los goles registrados no coinciden con el marcador. Verifica los jugadores y tipos de gol.');
+            }
+        }
+
         // Notificar a los capitanes
         $match->load(['homeTeam.captain', 'awayTeam.captain', 'tournament']);
         if ($match->homeTeam->captain) {
