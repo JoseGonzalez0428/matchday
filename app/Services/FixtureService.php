@@ -17,7 +17,7 @@ class FixtureService
         $groups = $tournament->groups()->with('teams')->get();
 
         foreach ($groups as $group) {
-            $teams = $group->teams->values();
+            $teams = $group->teams->shuffle()->values();
             $n = $teams->count();
 
             if ($n < 2) {
