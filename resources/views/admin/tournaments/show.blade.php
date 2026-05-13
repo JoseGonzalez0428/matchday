@@ -9,6 +9,10 @@
         <p class="text-gray-500 mt-1">{{ $tournament->edition }} · {{ ucfirst($tournament->format) }}</p>
     </div>
     <div class="flex gap-2">
+        <a href="{{ route('admin.tournaments.bracket', $tournament) }}"
+            class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">
+            🏆 Ver Bracket
+        </a>
         <a href="{{ route('admin.tournaments.pdf.standings', $tournament) }}"
            class="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800">
             📄 PDF Standings
@@ -182,9 +186,25 @@
 @if($tournament->matches()->exists())
 <div class="bg-white rounded-xl shadow p-6">
     <h2 class="text-xl font-bold text-gray-700 mb-4">Partidos</h2>
-    @foreach($tournament->matches()->with(['homeTeam','awayTeam','group'])->orderBy('played_at')->get()->groupBy('group.name') as $groupName => $matches)
+    @php
+        $stageOrder = ['group' => 1, 'round32' => 2, 'quarter' => 3, 'semi' => 4, 'final' => 5];
+        $allMatches = $tournament->matches()
+            ->with(['homeTeam','awayTeam','group'])
+            ->get()
+            ->sortBy(fn($m) => [$stageOrder[$m->stage] ?? 99, $m->played_at])
+            ->groupBy(fn($m) => $m->stage === 'group' ? 'Grupo ' . ($m->group->name ?? '?') : $m->stage);
+    @endphp
+    @foreach($allMatches as $groupName => $matches)
     <div class="mb-4">
-        <h3 class="font-bold text-green-700 mb-2">{{ $groupName ?? 'Fase eliminatoria' }}</h3>
+        <h3 class="font-bold text-green-700 mb-2">
+            {{ match($groupName) {
+                'quarter' => 'Cuartos de final',
+                'semi'    => 'Semifinales',
+                'final'   => 'Final',
+                'round32' => 'Octavos de final',
+                default   => $groupName
+            } }}
+        </h3>
         @foreach($matches as $match)
         <div class="flex items-center justify-between border rounded-lg px-4 py-3 mb-2 hover:bg-gray-50">
             <span class="font-medium w-1/3 text-right">{{ $match->homeTeam->name }}</span>

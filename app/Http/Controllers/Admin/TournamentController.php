@@ -265,4 +265,14 @@ class TournamentController extends Controller
 
         return back()->with('success', 'Equipo removido del grupo exitosamente.');
     }
+
+    public function bracket(Tournament $tournament)
+    {
+        $matches = $tournament->matches()
+            ->with(['homeTeam', 'awayTeam'])
+            ->get()
+            ->groupBy('stage');
+
+        return view('admin.tournaments.bracket', compact('tournament', 'matches'));
+    }
 }
