@@ -5,10 +5,27 @@
 @section('content')
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-3xl font-bold text-green-800">👕 Equipos</h1>
-    <a href="{{ route('admin.teams.create') }}"
-       class="bg-green-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-800">
-        + Nuevo equipo
-    </a>
+    <div class="flex gap-2">
+        <form method="GET" action="{{ route('admin.teams.index') }}" class="flex gap-2">
+            <input type="text" name="search" value="{{ $search ?? '' }}"
+                   placeholder="Buscar equipo..."
+                   class="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-48">
+            <button type="submit"
+                    class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm hover:bg-green-200">
+                🔍
+            </button>
+            @if($search)
+            <a href="{{ route('admin.teams.index') }}"
+               class="px-4 py-2 rounded-lg border text-sm hover:bg-gray-50 text-gray-600">
+                ✕
+            </a>
+            @endif
+        </form>
+        <a href="{{ route('admin.teams.create') }}"
+           class="bg-green-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-800">
+            + Nuevo equipo
+        </a>
+    </div>
 </div>
 
 <div class="bg-white rounded-xl shadow overflow-hidden">
@@ -63,7 +80,10 @@
             @endforelse
         </tbody>
     </table>
-    <div class="px-4 py-3 border-t">
+    <div class="px-4 py-3 border-t flex items-center justify-between">
+        <p class="text-sm text-gray-500">
+            Mostrando {{ $teams->firstItem() }}-{{ $teams->lastItem() }} de {{ $teams->total() }} equipos
+        </p>
         {{ $teams->links() }}
     </div>
 </div>

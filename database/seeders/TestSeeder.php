@@ -15,6 +15,21 @@ use Carbon\Carbon;
 
 class TestSeeder extends Seeder
 {
+    private array $shields = [
+        'Club América'          => 'https://tmssl.akamaized.net/images/wappen/head/3631.png',
+        'Chivas de Guadalajara' => 'https://tmssl.akamaized.net/images/wappen/head/6711.png',
+        'Tigres UANL'           => 'https://tmssl.akamaized.net/images/wappen/head/7055.png',
+        'Monterrey'             => 'https://tmssl.akamaized.net/images/wappen/head/2407.png',
+        'Cruz Azul'             => 'https://tmssl.akamaized.net/images/wappen/head/3711.png',
+        'Pachuca'               => 'https://tmssl.akamaized.net/images/wappen/head/4035.png',
+        'Santos Laguna'         => 'https://tmssl.akamaized.net/images/wappen/head/1403.png',
+        'León'                  => 'https://tmssl.akamaized.net/images/wappen/head/4941.png',
+        'Toluca'                => 'https://tmssl.akamaized.net/images/wappen/head/1804.png',
+        'Atlas'                 => 'https://tmssl.akamaized.net/images/wappen/head/8590.png',
+        'Pumas UNAM'            => 'https://tmssl.akamaized.net/images/wappen/head/7633.png',
+        'Necaxa'                => 'https://tmssl.akamaized.net/images/wappen/head/1146.png',
+    ];
+
     public function run(): void
     {
         // ── CAPITANES ─────────────────────────────────────────
@@ -257,9 +272,25 @@ class TestSeeder extends Seeder
 
         $teams = [];
         foreach ($teamsData as $i => $data) {
+            // Descargar escudo
+            $shieldUrl = null;
+            $shieldSrc = $this->shields[$data['name']] ?? null;
+            if ($shieldSrc) {
+                try {
+                    $contents = @file_get_contents($shieldSrc);
+                    if ($contents) {
+                        $filename = 'shields/lmx_' . \Illuminate\Support\Str::slug($data['name']) . '.png';
+                        \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $contents);
+                        $shieldUrl = $filename;
+                    }
+                } catch (\Exception $e) {
+                    // continuar sin escudo
+                }
+            }
+
             $team = Team::firstOrCreate(
                 ['name' => $data['name']],
-                ['country' => $data['country'], 'captain_id' => $data['captain']->id]
+                ['country' => $data['country'], 'captain_id' => $data['captain']->id, 'shield_url' => $shieldUrl]
             );
 
             if ($team->players()->count() === 0) {

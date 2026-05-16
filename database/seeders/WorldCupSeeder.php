@@ -15,6 +15,56 @@ use Carbon\Carbon;
 
 class WorldCupSeeder extends Seeder
 {
+    private array $flags = [
+        'México'           => 'mx',
+        'Sudáfrica'        => 'za',
+        'Corea del Sur'    => 'kr',
+        'Chequia'          => 'cz',
+        'Canadá'           => 'ca',
+        'Suiza'            => 'ch',
+        'Qatar'            => 'qa',
+        'Bosnia y Herzegovina' => 'ba',
+        'Brasil'           => 'br',
+        'Marruecos'        => 'ma',
+        'Haití'            => 'ht',
+        'Escocia'          => 'gb-sct',
+        'Estados Unidos'   => 'us',
+        'Paraguay'         => 'py',
+        'Australia'        => 'au',
+        'Turquía'          => 'tr',
+        'Alemania'         => 'de',
+        'Curazao'          => 'cw',
+        'Costa de Marfil'  => 'ci',
+        'Ecuador'          => 'ec',
+        'Países Bajos'     => 'nl',
+        'Japón'            => 'jp',
+        'Suecia'           => 'se',
+        'Túnez'            => 'tn',
+        'Bélgica'          => 'be',
+        'Egipto'           => 'eg',
+        'Irán'             => 'ir',
+        'Nueva Zelanda'    => 'nz',
+        'España'           => 'es',
+        'Cabo Verde'       => 'cv',
+        'Arabia Saudita'   => 'sa',
+        'Uruguay'          => 'uy',
+        'Francia'          => 'fr',
+        'Senegal'          => 'sn',
+        'Noruega'          => 'no',
+        'Irak'             => 'iq',
+        'Argentina'        => 'ar',
+        'Argelia'          => 'dz',
+        'Austria'          => 'at',
+        'Jordania'         => 'jo',
+        'Portugal'         => 'pt',
+        'RD Congo'         => 'cd',
+        'Uzbekistán'       => 'uz',
+        'Colombia'         => 'co',
+        'Inglaterra'       => 'gb-eng',
+        'Croacia'          => 'hr',
+        'Ghana'            => 'gh',
+        'Panamá'           => 'pa',
+    ];
     // Grupos oficiales FIFA World Cup 2026
     private array $groups = [
         'A' => ['México', 'Sudáfrica', 'Corea del Sur', 'Chequia'],
@@ -120,9 +170,29 @@ class WorldCupSeeder extends Seeder
                 $captain->assignRole('captain');
 
                 // Crear equipo
+                $flagCode = $this->flags[$teamName] ?? null;
+                $flagUrl  = $flagCode
+                    ? "https://flagcdn.com/w80/{$flagCode}.png"
+                    : null;
+
+                // Descargar y guardar la bandera localmente
+                $shieldUrl = null;
+                if ($flagUrl) {
+                    try {
+                        $contents = file_get_contents($flagUrl);
+                        if ($contents) {
+                            $filename = 'shields/flag_' . $flagCode . '.png';
+                            \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $contents);
+                            $shieldUrl = $filename;
+                        }
+                    } catch (\Exception $e) {
+                        // Si falla la descarga, continuar sin bandera
+                    }
+                }
+
                 $team = Team::firstOrCreate(
                     ['name' => $teamName],
-                    ['country' => $teamName, 'captain_id' => $captain->id]
+                    ['country' => $teamName, 'captain_id' => $captain->id, 'shield_url' => $shieldUrl]
                 );
 
                 // Crear jugadores

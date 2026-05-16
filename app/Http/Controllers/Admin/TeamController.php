@@ -14,8 +14,15 @@ class TeamController extends Controller
 {
     public function index()
     {
-        $teams = Team::with('captain')->latest()->paginate(15);
-        return view('admin.teams.index', compact('teams'));
+        $search = request('search');
+        $teams = Team::with('captain')
+            ->withCount('players')
+            ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('admin.teams.index', compact('teams', 'search'));
     }
 
     public function create()
