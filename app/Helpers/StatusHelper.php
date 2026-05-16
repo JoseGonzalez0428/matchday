@@ -28,7 +28,8 @@ class StatusHelper
     {
         return match($stage) {
             'group'   => 'Fase de grupos',
-            'round32' => 'Ronda de 32',
+            'round32' => 'Ronda de 32 (Dieciseisavos)',
+            'round16' => 'Octavos de final',
             'quarter' => 'Cuartos de final',
             'semi'    => 'Semifinal',
             'final'   => 'Final',

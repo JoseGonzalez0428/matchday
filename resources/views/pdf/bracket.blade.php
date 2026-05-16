@@ -43,7 +43,7 @@
         {{-- RONDA DE 32 --}}
         @if(isset($matches['round32']))
         <div class="stage-col" style="width: 18%;">
-            <div class="stage-title">Ronda de 32</div>
+            <div class="stage-title">Octavos de final</div>
             @foreach($matches['round32'] as $match)
                 @php
                     $homeWins = $match->status === 'finished' && (
@@ -75,6 +75,20 @@
             @endforeach
         </div>
         <div class="stage-col arrow" style="width: 2%;">---</div>
+        @endif
+
+        {{-- ── DIECISEISAVOS ──────────────────────────── --}}
+        @if(isset($matches['round16']))
+        <div class="section-header">Dieciseisavos de final</div>
+        <div class="quarter-grid">
+            @foreach($matches['round16']->chunk(2) as $chunk)
+            <div class="quarter-col">
+                @foreach($chunk as $match)
+                    @include('pdf.partials.match-card', ['match' => $match, 'isFinal' => false])
+                @endforeach
+            </div>
+            @endforeach
+        </div>
         @endif
 
         {{-- CUARTOS --}}

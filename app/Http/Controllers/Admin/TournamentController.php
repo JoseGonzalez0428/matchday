@@ -277,4 +277,93 @@ class TournamentController extends Controller
 
         return view('admin.tournaments.bracket', compact('tournament', 'matches'));
     }
+
+    public function simulateRound(Tournament $tournament, \Illuminate\Http\Request $request)
+    {
+        $useRandom = $request->boolean('use_random', false);
+
+        $pendingMatches = $tournament->matches()
+            ->where('status', 'scheduled')
+            ->with(['homeTeam', 'awayTeam', 'homeTeam.players', 'awayTeam.players'])
+            ->get();
+
+        if ($pendingMatches->isEmpty()) {
+            return back()->with('error', 'No hay partidos pendientes para simular.');
+        }
+
+        $predictionService = app(\App\Services\MatchPredictionService::class);
+        $simulated = 0;
+        $aiSuccess = 0;
+        $randomized = 0;
+        $failed = [];
+
+        foreach ($pendingMatches as $match) {
+            $homeScore = null;
+            $awayScore = null;
+            $usedAI = false;
+
+            if (!$useRandom) {
+                try {
+                    $prediction = $predictionService->predict($match);
+                    if (!isset($prediction['error'])) {
+                        $homeScore = $prediction['home_score'] ?? rand(0, 2);
+                        $awayScore = $prediction['away_score'] ?? rand(0, 2);
+                        $usedAI = true;
+                        $aiSuccess++;
+                    } else {
+                        $failed[] = $match->homeTeam->name . ' vs ' . $match->awayTeam->name;
+                    }
+                } catch (\Exception $e) {
+                    $failed[] = $match->homeTeam->name . ' vs ' . $match->awayTeam->name;
+                }
+                usleep(500000);
+            }
+
+            if (is_null($homeScore)) {
+                if ($useRandom) {
+                    $homeScore = rand(0, 3);
+                    $awayScore = rand(0, 3);
+                    $randomized++;
+                } else {
+                    continue; // No simular si falló y no se pidió random
+                }
+            }
+
+            $isKnockout = in_array($match->stage, ['round32', 'quarter', 'semi', 'final']);
+            $homePenalties = null;
+            $awayPenalties = null;
+
+            if ($isKnockout && $homeScore === $awayScore) {
+                do {
+                    $homePenalties = rand(3, 6);
+                    $awayPenalties = rand(3, 6);
+                } while ($homePenalties === $awayPenalties);
+            }
+
+            $match->update([
+                'home_score'     => $homeScore,
+                'away_score'     => $awayScore,
+                'home_penalties' => $homePenalties,
+                'away_penalties' => $awayPenalties,
+                'status'         => 'finished',
+            ]);
+
+            $simulated++;
+        }
+
+        // Si hubo fallos y no se pidió random, devolver info para mostrar modal
+        if (!empty($failed) && !$useRandom) {
+            return back()
+                ->with('simulate_success', $aiSuccess)
+                ->with('simulate_failed', count($failed))
+                ->with('simulate_failed_matches', implode('|', $failed))
+                ->with('tournament_id', $tournament->id);
+        }
+
+        $msg = "✅ {$simulated} partido(s) simulados.";
+        if ($aiSuccess > 0) $msg .= " 🤖 {$aiSuccess} con IA.";
+        if ($randomized > 0) $msg .= " 🎲 {$randomized} aleatorios.";
+
+        return back()->with('success', $msg);
+    }
 }

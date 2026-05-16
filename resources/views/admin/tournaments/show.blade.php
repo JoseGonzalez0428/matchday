@@ -13,6 +13,16 @@
             class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">
             🏆 Ver Bracket
         </a>
+        @if($tournament->matches()->where('status', 'scheduled')->exists() && config('app.ai_analysis_enabled'))
+        <form method="POST" action="{{ route('admin.tournaments.simulate', $tournament) }}"
+            onsubmit="return confirm('¿Simular todos los partidos pendientes con IA? Esto puede tardar varios minutos.')">
+            @csrf
+            <button type="submit"
+                    class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">
+                🤖 Simular con IA
+            </button>
+        </form>
+        @endif
         <a href="{{ route('admin.tournaments.pdf.standings', $tournament) }}"
            class="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800">
             📄 PDF Standings
@@ -213,7 +223,7 @@
 <div class="bg-white rounded-xl shadow p-6">
     <h2 class="text-xl font-bold text-gray-700 mb-4">Partidos</h2>
     @php
-        $stageOrder = ['group' => 1, 'round32' => 2, 'quarter' => 3, 'semi' => 4, 'final' => 5];
+        $stageOrder = ['group' => 1, 'round32' => 2, 'round16' => 3, 'quarter' => 4, 'semi' => 5, 'final' => 6];
         $allMatches = $tournament->matches()
             ->with(['homeTeam','awayTeam','group'])
             ->get()
@@ -224,10 +234,11 @@
     <div class="mb-4">
         <h3 class="font-bold text-green-700 mb-2">
             {{ match($groupName) {
+                'round32' => 'Ronda de 32',
+                'round16' => 'Octavos de final',
                 'quarter' => 'Cuartos de final',
                 'semi'    => 'Semifinales',
                 'final'   => 'Final',
-                'round32' => 'Octavos de final',
                 default   => $groupName
             } }}
         </h3>
@@ -316,4 +327,74 @@
     </script>
     @endif
 @endif
+
+    {{-- Modal simulación con fallback aleatorio --}}
+    @if(session('simulate_failed'))
+    <div id="simulate-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center">
+        <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 w-full">
+            
+            <div class="text-center mb-6">
+                <div class="text-5xl mb-3">⚠️</div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Límite de IA alcanzado</h2>
+                <p class="text-gray-500 text-sm">
+                    La IA procesó <span class="font-bold text-green-600">{{ session('simulate_success') }} partidos</span> 
+                    correctamente, pero 
+                    <span class="font-bold text-orange-500">{{ session('simulate_failed') }} partidos</span> 
+                    no pudieron ser predichos.
+                </p>
+            </div>
+
+            {{-- Lista de partidos fallidos --}}
+            <div class="bg-gray-50 rounded-xl p-4 mb-6 max-h-40 overflow-y-auto">
+                <p class="text-xs font-bold text-gray-500 uppercase mb-2">Partidos pendientes:</p>
+                @foreach(explode('|', session('simulate_failed_matches')) as $matchName)
+                    <div class="flex items-center gap-2 py-1 border-b border-gray-100 last:border-0">
+                        <span class="text-orange-400 text-xs">⚽</span>
+                        <span class="text-sm text-gray-700">{{ $matchName }}</span>
+                    </div>
+                @endforeach
+            </div>
+
+            <p class="text-center text-sm text-gray-500 mb-6">
+                ¿Deseas simular los <strong>{{ session('simulate_failed') }} partidos restantes</strong> 
+                con resultados aleatorios?
+            </p>
+
+            <div class="flex gap-3">
+                {{-- Botón simular aleatorio --}}
+                <form method="POST" 
+                    action="{{ route('admin.tournaments.simulate', session('tournament_id')) }}"
+                    class="flex-1">
+                    @csrf
+                    <input type="hidden" name="use_random" value="1">
+                    <button type="submit"
+                            class="w-full bg-orange-500 text-white py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors">
+                        🎲 Simular aleatoriamente
+                    </button>
+                </form>
+
+                {{-- Botón cancelar --}}
+                <button onclick="document.getElementById('simulate-modal').classList.add('hidden')"
+                        class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors">
+                    Cancelar
+                </button>
+            </div>
+
+            <p class="text-center text-xs text-gray-400 mt-4">
+                También puedes esperar unos minutos y volver a intentar con IA.
+            </p>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('simulate-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+    });
+    </script>
+    @endif
 @endsection

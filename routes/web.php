@@ -27,6 +27,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('users', Admin\UserController::class);
     Route::resource('teams.players', Admin\PlayerController::class);
     Route::post('matches/{match}/predict', [Admin\MatchController::class, 'predict'])->name('matches.predict');
+    Route::post('tournaments/{tournament}/simulate', [Admin\TournamentController::class, 'simulateRound'])->name('tournaments.simulate');
 });
 
 // ── Rutas Captain ─────────────────────────────────────────────

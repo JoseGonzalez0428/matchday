@@ -108,11 +108,13 @@ class FixtureService
         }
 
         $hasRound32 = $tournament->matches()->where('stage', 'round32')->exists();
+        $hasRound16 = $tournament->matches()->where('stage', 'round16')->exists();
         $hasQuarter = $tournament->matches()->where('stage', 'quarter')->exists();
         $hasSemi    = $tournament->matches()->where('stage', 'semi')->exists();
         $hasFinal   = $tournament->matches()->where('stage', 'final')->exists();
 
         $pendingRound32  = $tournament->matches()->where('stage', 'round32')->where('status', '!=', 'finished')->count();
+        $pendingRound16  = $tournament->matches()->where('stage', 'round16')->where('status', '!=', 'finished')->count();
         $pendingQuarters = $tournament->matches()->where('stage', 'quarter')->where('status', '!=', 'finished')->count();
         $pendingSemis    = $tournament->matches()->where('stage', 'semi')->where('status', '!=', 'finished')->count();
         $totalSemis      = $tournament->matches()->where('stage', 'semi')->count();
@@ -125,9 +127,11 @@ class FixtureService
         $startDate = \Carbon\Carbon::now()->addDays(3);
 
         // ── Determinar etapa ──────────────────────────────────
-        if (!$hasRound32 && !$hasQuarter && !$hasSemi && !$hasFinal) {
+        if (!$hasRound32 && !$hasRound16 && !$hasQuarter && !$hasSemi && !$hasFinal) {
             if ($totalWithThirds >= 32) {
                 $stage = 'round32';
+            } elseif ($totalClassified >= 16) {
+                $stage = 'round16';
             } elseif ($totalClassified >= 8) {
                 $stage = 'quarter';
             } elseif ($totalClassified === 4) {
@@ -136,8 +140,12 @@ class FixtureService
                 $stage = 'final';
             }
         } elseif ($hasRound32 && $pendingRound32 > 0) {
-            throw new \Exception("Aún hay {$pendingRound32} partido(s) de ronda de 32 pendientes.");
-        } elseif ($hasRound32 && !$hasQuarter) {
+            throw new \Exception("Aún hay {$pendingRound32} partido(s) de octavos pendientes.");
+        } elseif ($hasRound32 && !$hasRound16) {
+            $stage = 'round16';
+        } elseif ($hasRound16 && $pendingRound16 > 0) {
+            throw new \Exception("Aún hay {$pendingRound16} partido(s) de dieciseisavos pendientes.");
+        } elseif ($hasRound16 && !$hasQuarter) {
             $stage = 'quarter';
         } elseif ($hasQuarter && $pendingQuarters > 0) {
             throw new \Exception("Aún hay {$pendingQuarters} partido(s) de cuartos pendientes.");
@@ -254,9 +262,14 @@ class FixtureService
             }
 
 
-        } elseif ($stage === 'quarter' || $stage === 'semi') {
+        } elseif (in_array($stage, ['round16', 'quarter', 'semi'])) {
 
-            $prevStage   = $stage === 'quarter' ? 'round32' : 'quarter';
+            $prevStage = match($stage) {
+                'round16' => 'round32',
+                'quarter' => 'round16',
+                'semi'    => 'quarter',
+                default   => 'round32',
+            };
             $prevMatches = $tournament->matches()
                 ->where('stage', $prevStage)
                 ->where('status', 'finished')
