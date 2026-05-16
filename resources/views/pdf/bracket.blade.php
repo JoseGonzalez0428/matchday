@@ -3,226 +3,166 @@
 <head>
     <meta charset="utf-8">
     <style>
-        body        { font-family: Arial, sans-serif; font-size: 11px; color: #1C1C1C; }
-        .header     { border-bottom: 3px solid #1A6B3A; padding-bottom: 8px; margin-bottom: 16px; }
-        .title      { font-size: 18px; font-weight: bold; color: #1A6B3A; }
-        .subtitle   { font-size: 10px; color: #666; }
-        .bracket    { display: table; width: 100%; }
-        .stage-col  { display: table-cell; vertical-align: middle; padding: 0 10px; }
-        .stage-title { font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase;
-                       text-align: center; margin-bottom: 8px; letter-spacing: 1px; }
-        .match-card { border: 1px solid #ddd; border-radius: 6px; margin-bottom: 12px;
-                      overflow: hidden; width: 160px; margin-left: auto; margin-right: auto; }
-        .match-row  { padding: 5px 8px; font-size: 10px; border-bottom: 1px solid #eee;
-                      display: flex; justify-content: space-between; }
-        .match-row:last-child { border-bottom: none; }
-        .winner     { background: #D6EFD8; font-weight: bold; color: #1A6B3A; }
-        .score      { font-weight: bold; min-width: 20px; text-align: right; }
-        .match-footer { background: #f9f9f9; padding: 3px 8px; font-size: 9px;
-                        color: #888; text-align: center; border-top: 1px solid #eee; }
-        .final-card { border: 2px solid #F59E0B; border-radius: 6px; margin-bottom: 12px;
-                      overflow: hidden; width: 180px; margin-left: auto; margin-right: auto; }
-        .champion-box { text-align: center; padding: 12px; border: 2px solid #F59E0B;
-                        border-radius: 6px; width: 120px; margin: auto; background: #FFFBEB; }
-        .champion-title { font-size: 9px; color: #92400E; text-transform: uppercase; font-weight: bold; }
-        .champion-name  { font-size: 13px; font-weight: bold; color: #B45309; margin-top: 4px; }
-        .arrow { text-align: center; color: #ccc; font-size: 16px; vertical-align: middle; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; font-size: 9px; color: #1C1C1C; }
+
+        .header { border-bottom: 3px solid #1A6B3A; padding-bottom: 6px; margin-bottom: 12px; }
+        .title  { font-size: 15px; font-weight: bold; color: #1A6B3A; }
+        .sub    { font-size: 8px; color: #666; margin-top: 2px; }
+
+        .section-title { font-size: 8px; font-weight: bold; color: white;
+                         background: #1A6B3A; padding: 3px 6px; margin-bottom: 4px;
+                         margin-top: 10px; }
+
+        .col2 { width: 49%; float: left; }
+        .col2r { width: 49%; float: right; }
+        .col4 { width: 24%; float: left; }
+        .clearfix { clear: both; }
+
+        .card { border: 1px solid #ccc; margin-bottom: 4px; font-size: 8px; }
+        .card-final { border: 2px solid #F59E0B; margin-bottom: 4px; font-size: 8px; }
+
+        .row { padding: 3px 5px; border-bottom: 1px solid #eee; }
+        .row-w { padding: 3px 5px; border-bottom: 1px solid #eee;
+                 background: #D6EFD8; font-weight: bold; color: #1A6B3A; }
+        .row-wy { padding: 3px 5px; border-bottom: 1px solid #eee;
+                  background: #FEF3C7; font-weight: bold; color: #B45309; }
+
+        .team { display: inline-block; width: 78%; }
+        .score { display: inline-block; width: 20%; text-align: right; font-weight: bold; }
+
+        .foot { background: #f5f5f5; padding: 2px 5px; font-size: 7px;
+                color: #888; text-align: center; }
+        .foot-pen { background: #EFF6FF; padding: 2px 5px; font-size: 7px;
+                    color: #2563EB; text-align: center; }
+
+        .champion { text-align: center; border: 2px solid #F59E0B;
+                    background: #FFFBEB; padding: 6px; margin-top: 4px; }
+        .champ-label { font-size: 7px; color: #92400E; text-transform: uppercase; }
+        .champ-name  { font-size: 11px; font-weight: bold; color: #B45309; }
+
         .footer { position: fixed; bottom: 0; width: 100%; border-top: 1px solid #ccc;
-                  font-size: 9px; color: #999; text-align: center; padding-top: 4px; }
-        .pen { font-size: 9px; color: #2563EB; }
+                  font-size: 7px; color: #999; text-align: center; padding-top: 3px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="title">MatchDay — Bracket del Torneo</div>
-        <div class="subtitle">{{ $tournament->name }} · {{ $tournament->edition }} · Generado el {{ now()->format('d/m/Y H:i') }}</div>
-    </div>
 
-    <div class="bracket">
+<div class="header">
+    <div class="title">MatchDay &mdash; Bracket del Torneo</div>
+    <div class="sub">{{ $tournament->name }} &middot; {{ $tournament->edition }} &middot; Generado el {{ now()->format('d/m/Y H:i') }}</div>
+</div>
 
-        {{-- RONDA DE 32 --}}
-        @if(isset($matches['round32']))
-        <div class="stage-col" style="width: 18%;">
-            <div class="stage-title">Octavos de final</div>
-            @foreach($matches['round32'] as $match)
-                @php
-                    $homeWins = $match->status === 'finished' && (
-                        !is_null($match->home_penalties)
-                            ? $match->home_penalties > $match->away_penalties
-                            : $match->home_score > $match->away_score
-                    );
-                    $awayWins = $match->status === 'finished' && !$homeWins;
-                @endphp
-                <div class="match-card">
-                    <div class="match-row {{ $homeWins ? 'winner' : '' }}">
-                        <span>{{ $match->homeTeam->name }}</span>
-                        <span class="score">{{ $match->status === 'finished' ? $match->home_score : '?' }}</span>
-                    </div>
-                    <div class="match-row {{ $awayWins ? 'winner' : '' }}">
-                        <span>{{ $match->awayTeam->name }}</span>
-                        <span class="score">{{ $match->status === 'finished' ? $match->away_score : '?' }}</span>
-                    </div>
-                    @if(!is_null($match->home_penalties))
-                        <div class="match-footer pen">
-                            Penales: {{ $match->home_penalties }}-{{ $match->away_penalties }}
-                        </div>
-                    @else
-                        <div class="match-footer">
-                            {{ $match->status === 'finished' ? 'Finalizado' : $match->played_at->format('d/m H:i') }}
-                        </div>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-        <div class="stage-col arrow" style="width: 2%;">---</div>
-        @endif
+@php
+function pdfCard($match, $final = false) {
+    $hw = $match->status === 'finished' && (
+        !is_null($match->home_penalties)
+            ? $match->home_penalties > $match->away_penalties
+            : $match->home_score > $match->away_score
+    );
+    $aw = $match->status === 'finished' && !$hw;
+    $cardClass = $final ? 'card-final' : 'card';
+    $winClass  = $final ? 'row-wy' : 'row-w';
 
-        {{-- ── DIECISEISAVOS ──────────────────────────── --}}
-        @if(isset($matches['round16']))
-        <div class="section-header">Dieciseisavos de final</div>
-        <div class="quarter-grid">
-            @foreach($matches['round16']->chunk(2) as $chunk)
-            <div class="quarter-col">
-                @foreach($chunk as $match)
-                    @include('pdf.partials.match-card', ['match' => $match, 'isFinal' => false])
-                @endforeach
-            </div>
-            @endforeach
-        </div>
-        @endif
+    $hs = $match->status === 'finished' ? $match->home_score : '?';
+    $as = $match->status === 'finished' ? $match->away_score : '?';
 
-        {{-- CUARTOS --}}
-        @if(isset($matches['quarter']))
-        <div class="stage-col" style="width: 22%;">
-            <div class="stage-title">Cuartos de final</div>
-            @foreach($matches['quarter'] as $match)
-                @php
-                    $homeWins = $match->status === 'finished' && (
-                        !is_null($match->home_penalties)
-                            ? $match->home_penalties > $match->away_penalties
-                            : $match->home_score > $match->away_score
-                    );
-                    $awayWins = $match->status === 'finished' && !$homeWins;
-                @endphp
-                <div class="match-card">
-                    <div class="match-row {{ $homeWins ? 'winner' : '' }}">
-                        <span>{{ $match->homeTeam->name }}</span>
-                        <span class="score">{{ $match->status === 'finished' ? $match->home_score : '?' }}</span>
-                    </div>
-                    <div class="match-row {{ $awayWins ? 'winner' : '' }}">
-                        <span>{{ $match->awayTeam->name }}</span>
-                        <span class="score">{{ $match->status === 'finished' ? $match->away_score : '?' }}</span>
-                    </div>
-                    @if(!is_null($match->home_penalties))
-                        <div class="match-footer pen">
-                            Penales: {{ $match->home_penalties }}-{{ $match->away_penalties }}
-                        </div>
-                    @else
-                        <div class="match-footer">
-                            {{ $match->status === 'finished' ? 'Finalizado' : $match->played_at->format('d/m H:i') }}
-                        </div>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-        <div class="stage-col arrow" style="width: 3%;"> &gt;&gt; </div>
-        @endif
+    $out  = "<div class='{$cardClass}'>";
+    $out .= "<div class='".($hw ? $winClass : 'row')."'>";
+    $out .= "<span class='team'>".e($match->homeTeam->name)."</span>";
+    $out .= "<span class='score'>{$hs}</span></div>";
 
-        {{-- SEMIS --}}
-        @if(isset($matches['semi']))
-        <div class="stage-col" style="width: 22%;">
-            <div class="stage-title">Semifinales</div>
-            @foreach($matches['semi'] as $match)
-                @php
-                    $homeWins = $match->status === 'finished' && (
-                        !is_null($match->home_penalties)
-                            ? $match->home_penalties > $match->away_penalties
-                            : $match->home_score > $match->away_score
-                    );
-                    $awayWins = $match->status === 'finished' && !$homeWins;
-                @endphp
-                <div class="match-card">
-                    <div class="match-row {{ $homeWins ? 'winner' : '' }}">
-                        <span>{{ $match->homeTeam->name }}</span>
-                        <span class="score">{{ $match->status === 'finished' ? $match->home_score : '?' }}</span>
-                    </div>
-                    <div class="match-row {{ $awayWins ? 'winner' : '' }}">
-                        <span>{{ $match->awayTeam->name }}</span>
-                        <span class="score">{{ $match->status === 'finished' ? $match->away_score : '?' }}</span>
-                    </div>
-                    @if(!is_null($match->home_penalties))
-                        <div class="match-footer pen">
-                            Penales: {{ $match->home_penalties }}-{{ $match->away_penalties }}
-                        </div>
-                    @else
-                        <div class="match-footer">
-                            {{ $match->status === 'finished' ? 'Finalizado' : $match->played_at->format('d/m H:i') }}
-                        </div>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-        <div class="stage-col arrow" style="width: 3%;"> &gt;&gt; </div>
-        @endif
+    $out .= "<div class='".($aw ? $winClass : 'row')."'>";
+    $out .= "<span class='team'>".e($match->awayTeam->name)."</span>";
+    $out .= "<span class='score'>{$as}</span></div>";
 
-        {{-- FINAL --}}
-        @if(isset($matches['final']))
-        <div class="stage-col" style="width: 22%;">
-            <div class="stage-title">Final</div>
-            @foreach($matches['final'] as $match)
-                @php
-                    $homeWins = $match->status === 'finished' && (
-                        !is_null($match->home_penalties)
-                            ? $match->home_penalties > $match->away_penalties
-                            : $match->home_score > $match->away_score
-                    );
-                    $awayWins = $match->status === 'finished' && !$homeWins;
-                @endphp
-                <div class="final-card">
-                    <div class="match-row {{ $homeWins ? 'winner' : '' }}">
-                        <span>{{ $match->homeTeam->name }}</span>
-                        <span class="score">{{ $match->status === 'finished' ? $match->home_score : '?' }}</span>
-                    </div>
-                    <div class="match-row {{ $awayWins ? 'winner' : '' }}">
-                        <span>{{ $match->awayTeam->name }}</span>
-                        <span class="score">{{ $match->status === 'finished' ? $match->away_score : '?' }}</span>
-                    </div>
-                    @if(!is_null($match->home_penalties))
-                        <div class="match-footer pen">
-                            Penales: {{ $match->home_penalties }}-{{ $match->away_penalties }}
-                        </div>
-                    @else
-                        <div class="match-footer">
-                            {{ $match->status === 'finished' ? 'Finalizado' : $match->played_at->format('d/m H:i') }}
-                        </div>
-                    @endif
-                </div>
+    if (!is_null($match->home_penalties)) {
+        $out .= "<div class='foot-pen'>Pen: {$match->home_penalties}-{$match->away_penalties}</div>";
+    } else {
+        $status = $match->status === 'finished' ? 'Finalizado' : $match->played_at->format('d/m H:i');
+        $out .= "<div class='foot'>{$status}</div>";
+    }
+    $out .= "</div>";
+    return $out;
+}
+@endphp
 
-                {{-- Campeón --}}
-                @if($match->status === 'finished')
-                @php
-                    $champion = !is_null($match->home_penalties)
-                        ? ($match->home_penalties > $match->away_penalties ? $match->homeTeam : $match->awayTeam)
-                        : ($match->home_score > $match->away_score ? $match->homeTeam : $match->awayTeam);
-                @endphp
-                @endif
-            @endforeach
-        </div>
+{{-- RONDA DE 32 --}}
+@if(isset($matches['round32']))
+<div class="section-title">Ronda de 32</div>
+<div class="col2">
+    @foreach($matches['round32']->take(8) as $m)
+        {!! pdfCard($m) !!}
+    @endforeach
+</div>
+<div class="col2r">
+    @foreach($matches['round32']->skip(8) as $m)
+        {!! pdfCard($m) !!}
+    @endforeach
+</div>
+<div class="clearfix"></div>
+@endif
 
-        {{-- Campeón box --}}
-        @if(isset($champion))
-        <div class="stage-col arrow" style="width: 3%;"> &gt;&gt; </div>
-        <div class="stage-col" style="width: 22%;">
-            <div class="stage-title">Campeón</div>
-            <div class="champion-box">
-                <div class="champion-name">{{ $champion->name }}</div>
-            </div>
+{{-- OCTAVOS --}}
+@if(isset($matches['round16']))
+<div class="section-title">Octavos de final</div>
+<div class="col2">
+    @foreach($matches['round16']->take(4) as $m)
+        {!! pdfCard($m) !!}
+    @endforeach
+</div>
+<div class="col2r">
+    @foreach($matches['round16']->skip(4) as $m)
+        {!! pdfCard($m) !!}
+    @endforeach
+</div>
+<div class="clearfix"></div>
+@endif
+
+{{-- CUARTOS --}}
+@if(isset($matches['quarter']))
+<div class="section-title">Cuartos de final</div>
+@foreach($matches['quarter']->chunk(2) as $chunk)
+<div class="col4">
+    @foreach($chunk as $m)
+        {!! pdfCard($m) !!}
+    @endforeach
+</div>
+@endforeach
+<div class="clearfix"></div>
+@endif
+
+{{-- SEMIS + FINAL --}}
+@if(isset($matches['semi']) || isset($matches['final']))
+<div class="col2">
+    @if(isset($matches['semi']))
+    <div class="section-title">Semifinales</div>
+    @foreach($matches['semi'] as $m)
+        {!! pdfCard($m) !!}
+    @endforeach
+    @endif
+</div>
+<div class="col2r">
+    @if(isset($matches['final']))
+    <div class="section-title">Final</div>
+    @foreach($matches['final'] as $m)
+        {!! pdfCard($m, true) !!}
+        @if($m->status === 'finished')
+        @php
+            $champ = !is_null($m->home_penalties)
+                ? ($m->home_penalties > $m->away_penalties ? $m->homeTeam : $m->awayTeam)
+                : ($m->home_score > $m->away_score ? $m->homeTeam : $m->awayTeam);
+        @endphp
+        <div class="champion">
+            <div class="champ-label">Campeon</div>
+            <div class="champ-name">{{ $champ->name }}</div>
         </div>
         @endif
-        @endif
+    @endforeach
+    @endif
+</div>
+<div class="clearfix"></div>
+@endif
 
-    </div>
-
-    <div class="footer">MatchDay · Sistema de Gestión de Torneos · {{ $tournament->name }}</div>
+<div class="footer">MatchDay &middot; Sistema de Gestion de Torneos &middot; {{ $tournament->name }}</div>
 </body>
 </html>
