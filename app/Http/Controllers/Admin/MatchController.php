@@ -152,4 +152,15 @@ class MatchController extends Controller
 
     public function create() { return redirect()->route('admin.matches.index'); }
     public function store(Request $request) { return redirect()->route('admin.matches.index'); }
+
+    public function predict(TournamentMatch $match)
+    {
+        if ($match->status === 'finished') {
+            return response()->json(['error' => 'Este partido ya tiene resultado.'], 400);
+        }
+
+        $prediction = app(\App\Services\MatchPredictionService::class)->predict($match);
+
+        return response()->json($prediction);
+    }
 }

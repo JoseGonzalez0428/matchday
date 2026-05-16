@@ -3,8 +3,60 @@
 @section('title', 'Cargar Resultado')
 
 @section('content')
-<div class="mb-6">
-    <h1 class="text-3xl font-bold text-green-800">📅 Cargar Resultado</h1>
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-green-800">📅 Cargar Resultado</h1>
+            <p class="text-gray-500 mt-1">
+                {{ $match->homeTeam->name }} vs {{ $match->awayTeam->name }} ·
+                {{ $match->played_at->format('d/m/Y H:i') }}
+            </p>
+        </div>
+        @if(config('app.ai_analysis_enabled'))
+        <button type="button" id="predict-btn"
+                onclick="getPrediction()"
+                class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 flex items-center gap-2">
+            🤖 Predecir resultado
+        </button>
+        @endif
+    </div>
+
+    {{-- Widget de predicción IA --}}
+    @if(config('app.ai_analysis_enabled'))
+    <div id="prediction-widget" class="hidden bg-purple-50 border border-purple-200 rounded-xl p-5 mb-6">
+        <div class="flex items-center gap-2 mb-3">
+            <span class="text-xl">🤖</span>
+            <h3 class="font-bold text-purple-700">Predicción IA</h3>
+            <span class="ml-auto text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
+                Powered by Gemini AI
+            </span>
+        </div>
+        <div id="prediction-loading" class="text-purple-500 text-sm">
+            Analizando el partido...
+        </div>
+        <div id="prediction-result" class="hidden">
+            <div class="flex items-center justify-center gap-6 mb-3">
+                <div class="text-center">
+                    <p class="font-bold text-gray-800">{{ $match->homeTeam->name }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-purple-700">
+                        <span id="pred-home">0</span> — <span id="pred-away">0</span>
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">Resultado predicho</p>
+                </div>
+                <div class="text-center">
+                    <p class="font-bold text-gray-800">{{ $match->awayTeam->name }}</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg p-3 text-sm text-gray-600 mb-3" id="pred-analysis"></div>
+            <button type="button" onclick="applyPrediction()"
+                    class="w-full bg-purple-600 text-white py-2 rounded-lg text-sm hover:bg-purple-700">
+                Usar esta predicción como resultado
+            </button>
+        </div>
+        <div id="prediction-error" class="hidden text-red-500 text-sm"></div>
+    </div>
+    @endif
     <p class="text-gray-500 mt-1">
         {{ $match->homeTeam->name }} vs {{ $match->awayTeam->name }} ·
         {{ $match->played_at->format('d/m/Y H:i') }}
@@ -317,4 +369,73 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+
+@if(config('app.ai_analysis_enabled'))
+<script>
+let predHomeScore = 0;
+let predAwayScore = 0;
+
+async function getPrediction() {
+    const btn = document.getElementById('predict-btn');
+    const widget = document.getElementById('prediction-widget');
+    const loading = document.getElementById('prediction-loading');
+    const result = document.getElementById('prediction-result');
+    const error = document.getElementById('prediction-error');
+
+    btn.disabled = true;
+    btn.textContent = '🤖 Analizando...';
+    widget.classList.remove('hidden');
+    loading.classList.remove('hidden');
+    result.classList.add('hidden');
+    error.classList.add('hidden');
+
+    try {
+        const response = await fetch('{{ route('admin.matches.predict', $match) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            error.textContent = data.error;
+            error.classList.remove('hidden');
+            loading.classList.add('hidden');
+        } else {
+            predHomeScore = data.home_score ?? 0;
+            predAwayScore = data.away_score ?? 0;
+
+            document.getElementById('pred-home').textContent = predHomeScore;
+            document.getElementById('pred-away').textContent = predAwayScore;
+            document.getElementById('pred-analysis').textContent = data.analysis ?? '';
+
+            loading.classList.add('hidden');
+            result.classList.remove('hidden');
+        }
+    } catch (e) {
+        error.textContent = 'Error al conectar con la IA.';
+        error.classList.remove('hidden');
+        loading.classList.add('hidden');
+    }
+
+    btn.disabled = false;
+    btn.textContent = '🤖 Predecir resultado';
+}
+
+function applyPrediction() {
+    document.querySelector('input[name="home_score"]').value = predHomeScore;
+    document.querySelector('input[name="away_score"]').value = predAwayScore;
+
+    // Disparar evento para actualizar validaciones
+    document.querySelector('input[name="home_score"]').dispatchEvent(new Event('input'));
+    document.querySelector('input[name="away_score"]').dispatchEvent(new Event('input'));
+
+    document.getElementById('prediction-widget').classList.add('hidden');
+}
+</script>
+@endif
 @endsection
