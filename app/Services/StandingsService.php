@@ -81,4 +81,22 @@ class StandingsService
 
         return $standings;
     }
+    public function bestThirdPlace(array $standings, int $n = 8): array
+    {
+        $thirds = [];
+        foreach ($standings as $groupName => $teams) {
+            if (isset($teams[2])) {
+                $thirds[] = array_merge($teams[2], ['group' => $groupName]);
+            }
+        }
+
+        usort($thirds, function($a, $b) {
+            if ($a['points'] !== $b['points']) return $b['points'] - $a['points'];
+            if ($a['gd']     !== $b['gd'])     return $b['gd']     - $a['gd'];
+            if ($a['gf']     !== $b['gf'])     return $b['gf']     - $a['gf'];
+            return strcmp($a['team']->name, $b['team']->name);
+        });
+
+        return array_slice($thirds, 0, $n);
+    }
 }

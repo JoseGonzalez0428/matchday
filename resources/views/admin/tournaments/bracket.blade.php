@@ -22,16 +22,29 @@
 
 <div class="bg-white rounded-xl shadow p-6 overflow-x-auto">
 @php
+    $round32  = $matches['round32'] ?? collect();
     $quarters = $matches['quarter'] ?? collect();
     $semis    = $matches['semi']    ?? collect();
     $final    = $matches['final']   ?? collect();
 
-    // Emparejar cuartos con su semi correspondiente
-    // C1+C2 → Semi1, C3+C4 → Semi2
     $quarterPairs = $quarters->values()->chunk(2);
+    $round32Pairs = $round32->values()->chunk(2);
 @endphp
 
 <div class="flex gap-0 min-w-max items-stretch">
+
+    {{-- ── RONDA DE 32 ─────────────────────── --}}
+    @if($round32->isNotEmpty())
+    <div class="flex flex-col justify-around" style="gap: 0;">
+        <p class="text-xs font-bold text-gray-400 uppercase text-center mb-4">Ronda de 32</p>
+        <div class="flex flex-col" style="gap: 8px;">
+            @foreach($round32->values() as $match)
+                @include('admin.tournaments.partials.bracket-match', ['match' => $match, 'color' => 'green'])
+            @endforeach
+        </div>
+    </div>
+    <div class="flex items-center mx-3 text-gray-300 text-xl">→</div>
+    @endif
 
     {{-- ── CUARTOS ──────────────────────────── --}}
     @if($quarters->isNotEmpty())

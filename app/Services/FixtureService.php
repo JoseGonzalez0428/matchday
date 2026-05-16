@@ -25,7 +25,7 @@ class FixtureService
         }
 
         // Validar que todos los grupos tengan el mismo número de equipos
-        $teamCounts = $groups->map(fn($g) => $g->teams->count())->unique();
+        $teamCounts = $groups->map(function($g) { return $g->teams->count(); })->unique();
         if ($teamCounts->count() > 1) {
             throw new \Exception("Todos los grupos deben tener el mismo número de equipos. Revisa la distribución.");
         }
@@ -107,28 +107,38 @@ class FixtureService
             throw new \Exception("Aún hay {$pendingGroups} partido(s) de grupos pendientes.");
         }
 
+        $hasRound32 = $tournament->matches()->where('stage', 'round32')->exists();
         $hasQuarter = $tournament->matches()->where('stage', 'quarter')->exists();
         $hasSemi    = $tournament->matches()->where('stage', 'semi')->exists();
         $hasFinal   = $tournament->matches()->where('stage', 'final')->exists();
 
+        $pendingRound32  = $tournament->matches()->where('stage', 'round32')->where('status', '!=', 'finished')->count();
         $pendingQuarters = $tournament->matches()->where('stage', 'quarter')->where('status', '!=', 'finished')->count();
         $pendingSemis    = $tournament->matches()->where('stage', 'semi')->where('status', '!=', 'finished')->count();
-        $finishedSemis   = $tournament->matches()->where('stage', 'semi')->where('status', 'finished')->count();
         $totalSemis      = $tournament->matches()->where('stage', 'semi')->count();
 
-        $totalClassified = count($groupNames) * 2;
+        $totalClassified  = count($groupNames) * 2;
+        $hasThirdPlace    = count($groupNames) >= 12;
+        $totalWithThirds  = $hasThirdPlace ? $totalClassified + 8 : $totalClassified;
+
         $fixtures  = [];
         $startDate = \Carbon\Carbon::now()->addDays(3);
 
         // ── Determinar etapa ──────────────────────────────────
-        if (!$hasQuarter && !$hasSemi && !$hasFinal) {
-            if ($totalClassified >= 8) {
+        if (!$hasRound32 && !$hasQuarter && !$hasSemi && !$hasFinal) {
+            if ($totalWithThirds >= 32) {
+                $stage = 'round32';
+            } elseif ($totalClassified >= 8) {
                 $stage = 'quarter';
             } elseif ($totalClassified === 4) {
                 $stage = 'semi';
             } else {
                 $stage = 'final';
             }
+        } elseif ($hasRound32 && $pendingRound32 > 0) {
+            throw new \Exception("Aún hay {$pendingRound32} partido(s) de ronda de 32 pendientes.");
+        } elseif ($hasRound32 && !$hasQuarter) {
+            $stage = 'quarter';
         } elseif ($hasQuarter && $pendingQuarters > 0) {
             throw new \Exception("Aún hay {$pendingQuarters} partido(s) de cuartos pendientes.");
         } elseif ($hasQuarter && !$hasSemi) {
@@ -144,21 +154,120 @@ class FixtureService
         }
 
         // ── Generar cruces ────────────────────────────────────
-        if ($stage === 'quarter' || $stage === 'semi') {
+        if ($stage === 'round32') {
+            $first  = [];
+            $second = [];
 
-            if ($stage === 'quarter') {
-                // Clasificados de grupos
-                foreach ($groupNames as $groupName) {
-                    if (!isset($standingsData[$groupName][0]) || !isset($standingsData[$groupName][1])) {
-                        throw new \Exception("El grupo {$groupName} no tiene suficientes clasificados.");
+            foreach ($groupNames as $g) {
+                if (isset($standingsData[$g][0])) $first[$g]  = $standingsData[$g][0]['team'];
+                if (isset($standingsData[$g][1])) $second[$g] = $standingsData[$g][1]['team'];
+            }
+
+            $best8 = $standings->bestThirdPlace($standingsData, 8);
+            $thirdsByGroup = [];
+            foreach ($best8 as $t3) {
+                $thirdsByGroup[$t3['group']] = $t3['team'];
+            }
+
+            // Función para obtener el mejor tercero disponible de una lista de grupos
+            $usedThirds = [];
+            $getBestThird = function(array $possibleGroups) use ($thirdsByGroup, &$usedThirds) {
+                // Ordenar por ranking (ya vienen ordenados en $thirdsByGroup)
+                foreach ($possibleGroups as $g) {
+                    if (isset($thirdsByGroup[$g]) && !in_array($g, $usedThirds)) {
+                        $usedThirds[] = $g;
+                        return $thirdsByGroup[$g];
                     }
                 }
+                return null;
+            };
 
+            $fixtures = [];
+
+            // ── Cruces fijos (2° vs 2°) ───────────────────────────
+            if (isset($second['A'], $second['B']))
+                $fixtures[] = ['home' => $second['A'], 'away' => $second['B']]; // M73: 2A vs 2B
+
+            if (isset($second['D'], $second['G']))
+                $fixtures[] = ['home' => $second['D'], 'away' => $second['G']]; // M88: 2D vs 2G
+
+            if (isset($second['E'], $second['I']))
+                $fixtures[] = ['home' => $second['E'], 'away' => $second['I']]; // M78: 2E vs 2I
+
+            if (isset($second['K'], $second['L']))
+                $fixtures[] = ['home' => $second['K'], 'away' => $second['L']]; // M83: 2K vs 2L
+
+            // ── Cruces fijos (1° vs 2°) ───────────────────────────
+            if (isset($first['C'], $second['F']))
+                $fixtures[] = ['home' => $first['C'], 'away' => $second['F']];  // M76: 1C vs 2F
+
+            if (isset($first['F'], $second['C']))
+                $fixtures[] = ['home' => $first['F'], 'away' => $second['C']];  // M75: 1F vs 2C
+
+            if (isset($first['H'], $second['J']))
+                $fixtures[] = ['home' => $first['H'], 'away' => $second['J']];  // M84: 1H vs 2J
+
+            if (isset($first['J'], $second['H']))
+                $fixtures[] = ['home' => $first['J'], 'away' => $second['H']];  // M86: 1J vs 2H
+
+            // ── Cruces con mejores terceros (1° vs 3°) ────────────
+            // Orden importante: los terceros más fuertes van primero
+            $t74 = $getBestThird(['A','B','C','D','F']); // M74: 1E vs 3°(ABCDF)
+            if (isset($first['E']) && $t74)
+                $fixtures[] = ['home' => $first['E'], 'away' => $t74];
+
+            $t77 = $getBestThird(['C','D','F','G','H']); // M77: 1I vs 3°(CDFGH)
+            if (isset($first['I']) && $t77)
+                $fixtures[] = ['home' => $first['I'], 'away' => $t77];
+
+            $t79 = $getBestThird(['C','E','F','H','I']); // M79: 1A vs 3°(CEFHI)
+            if (isset($first['A']) && $t79)
+                $fixtures[] = ['home' => $first['A'], 'away' => $t79];
+
+            $t80 = $getBestThird(['E','H','I','J','K']); // M80: 1L vs 3°(EHIJK)
+            if (isset($first['L']) && $t80)
+                $fixtures[] = ['home' => $first['L'], 'away' => $t80];
+
+            $t81 = $getBestThird(['B','E','F','I','J']); // M81: 1D vs 3°(BEFIJ)
+            if (isset($first['D']) && $t81)
+                $fixtures[] = ['home' => $first['D'], 'away' => $t81];
+
+            $t82 = $getBestThird(['A','E','H','I','J']); // M82: 1G vs 3°(AEHIJ)
+            if (isset($first['G']) && $t82)
+                $fixtures[] = ['home' => $first['G'], 'away' => $t82];
+
+            $t85 = $getBestThird(['E','F','G','I','J']); // M85: 1B vs 3°(EFGIJ)
+            if (isset($first['B']) && $t85)
+                $fixtures[] = ['home' => $first['B'], 'away' => $t85];
+
+            $t87 = $getBestThird(['D','E','I','J','L']); // M87: 1K vs 3°(DEIJL)
+            if (isset($first['K']) && $t87)
+                $fixtures[] = ['home' => $first['K'], 'away' => $t87];
+
+            // ── Verificar que se generaron 16 cruces ──────────────
+            if (count($fixtures) !== 16) {
+                throw new \Exception(
+                    "No se pudieron generar los 16 cruces de la Ronda de 32. " .
+                    "Se generaron " . count($fixtures) . ". " .
+                    "Verifica que los 8 mejores terceros estén en grupos compatibles con la tabla FIFA."
+                );
+            }
+
+
+        } elseif ($stage === 'quarter' || $stage === 'semi') {
+
+            $prevStage   = $stage === 'quarter' ? 'round32' : 'quarter';
+            $prevMatches = $tournament->matches()
+                ->where('stage', $prevStage)
+                ->where('status', 'finished')
+                ->orderBy('id')
+                ->get();
+
+            if ($prevMatches->isEmpty()) {
                 $half = count($groupNames) / 2;
                 for ($i = 0; $i < $half; $i++) {
                     $groupA = $groupNames[$i];
                     $groupB = $groupNames[$i + $half];
-
                     $fixtures[] = [
                         'home' => $standingsData[$groupA][0]['team'],
                         'away' => $standingsData[$groupB][1]['team'],
@@ -169,61 +278,29 @@ class FixtureService
                     ];
                 }
             } else {
-                // Semi: ganadores de cuartos
-                $quarterMatches = $tournament->matches()
-                    ->where('stage', 'quarter')
-                    ->where('status', 'finished')
-                    ->get();
-
-                if ($quarterMatches->isEmpty()) {
-                    // Viene directo de grupos (2 grupos de 3 o 4)
-                    foreach ($groupNames as $groupName) {
-                        if (!isset($standingsData[$groupName][0]) || !isset($standingsData[$groupName][1])) {
-                            throw new \Exception("El grupo {$groupName} no tiene suficientes clasificados.");
-                        }
+                $winners = $prevMatches->map(function($m) {
+                    if (!is_null($m->home_penalties)) {
+                        return $m->home_penalties > $m->away_penalties ? $m->homeTeam : $m->awayTeam;
                     }
+                    return $m->home_score > $m->away_score ? $m->homeTeam : $m->awayTeam;
+                })->values();
 
-                    $half = count($groupNames) / 2;
-                    for ($i = 0; $i < $half; $i++) {
-                        $groupA = $groupNames[$i];
-                        $groupB = $groupNames[$i + $half];
-
+                for ($i = 0; $i < $winners->count(); $i += 2) {
+                    if (isset($winners[$i]) && isset($winners[$i + 1])) {
                         $fixtures[] = [
-                            'home' => $standingsData[$groupA][0]['team'],
-                            'away' => $standingsData[$groupB][1]['team'],
+                            'home' => $winners[$i],
+                            'away' => $winners[$i + 1],
                         ];
-                        $fixtures[] = [
-                            'home' => $standingsData[$groupB][0]['team'],
-                            'away' => $standingsData[$groupA][1]['team'],
-                        ];
-                    }
-                } else {
-                    // Viene de cuartos — emparejar ganador C1 vs C2, C3 vs C4
-                    $quarterMatches = $quarterMatches->sortBy('id')->values();
-                    $winners = $quarterMatches->map(function($m) {
-                        // Si hay penales, el ganador se determina por penales
-                        if (!is_null($m->home_penalties)) {
-                            return $m->home_penalties > $m->away_penalties ? $m->homeTeam : $m->awayTeam;
-                        }
-                        return $m->home_score > $m->away_score ? $m->homeTeam : $m->awayTeam;
-                    })->values();
-
-                    // Emparejar consecutivamente: G1 vs G2, G3 vs G4
-                    for ($i = 0; $i < $winners->count(); $i += 2) {
-                        if (isset($winners[$i]) && isset($winners[$i + 1])) {
-                            $fixtures[] = [
-                                'home' => $winners[$i],
-                                'away' => $winners[$i + 1],
-                            ];
-                        }
                     }
                 }
             }
 
         } elseif ($stage === 'final') {
+
             $semiMatches = $tournament->matches()
                 ->where('stage', 'semi')
                 ->where('status', 'finished')
+                ->orderBy('id')
                 ->get();
 
             if ($semiMatches->count() < $totalSemis) {
