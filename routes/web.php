@@ -25,8 +25,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('tournaments/{tournament}/bracket', [Admin\TournamentController::class, 'bracket'])->name('tournaments.bracket');
     Route::get('tournaments/{tournament}/pdf/bracket', [Admin\PdfController::class, 'bracket'])->name('tournaments.pdf.bracket');
     Route::resource('users', Admin\UserController::class);
-    Route::resource('teams.players', Admin\PlayerController::class)
-    ->except(['show']);
+    Route::resource('teams.players', Admin\PlayerController::class);
 });
 
 // ── Rutas Captain ─────────────────────────────────────────────

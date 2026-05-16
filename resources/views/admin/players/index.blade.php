@@ -47,6 +47,8 @@
                 </td>
                 <td class="px-4 py-3 text-gray-500">{{ $player->nationality ?? '—' }}</td>
                 <td class="px-4 py-3 flex gap-2 justify-center">
+                    <a href="{{ route('admin.teams.players.show', [$team, $player]) }}"
+                        class="text-green-700 hover:underline">Ver</a>
                     <a href="{{ route('admin.teams.players.edit', [$team, $player]) }}"
                        class="text-blue-600 hover:underline">Editar</a>
                     <form method="POST"
