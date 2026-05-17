@@ -163,6 +163,25 @@ class TournamentController extends Controller
 
             // Si la final ya se jugó, marcar torneo como finalizado
             $tournament->update(['status' => 'finished']);
+
+            // Enviar correo al campeón
+            $finalMatch = $tournament->matches()
+                ->where('stage', 'final')
+                ->where('status', 'finished')
+                ->with(['homeTeam.captain', 'awayTeam.captain'])
+                ->first();
+
+            if ($finalMatch) {
+                $champion = !is_null($finalMatch->home_penalties)
+                    ? ($finalMatch->home_penalties > $finalMatch->away_penalties ? $finalMatch->homeTeam : $finalMatch->awayTeam)
+                    : ($finalMatch->home_score > $finalMatch->away_score ? $finalMatch->homeTeam : $finalMatch->awayTeam);
+
+                if ($champion->captain) {
+                    \Illuminate\Support\Facades\Mail::to($champion->captain->email)
+                        ->queue(new \App\Mail\TournamentWonMail($tournament, $champion, $finalMatch));
+                }
+            }
+
             return redirect()->route('admin.tournaments.show', $tournament)
                 ->with('success', '¡El torneo ha finalizado!')
                 ->with('show_champion', true);
