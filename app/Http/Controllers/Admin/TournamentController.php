@@ -24,11 +24,15 @@ class TournamentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'      => 'required|string|max:150',
-            'edition'   => 'required|integer|min:2000|max:2100',
-            'format'    => 'required|in:groups_knockout,league,knockout',
+            'name'      => 'required|string|max:255',
+            'edition'   => 'required|integer|min:1900|max:2100',
+            'format'    => 'required|in:groups_knockout,league',
             'starts_at' => 'required|date',
-            'ends_at'   => 'nullable|date|after:starts_at',
+            'ends_at'   => 'nullable|date|after_or_equal:starts_at',
+        ], [
+            'ends_at.after_or_equal' => 'La fecha de fin no puede ser anterior a la fecha de inicio.',
+            'edition.min' => 'La edición debe ser un año válido.',
+            'edition.max' => 'La edición debe ser un año válido.',
         ]);
 
         $validated['created_by'] = auth()->id();
@@ -54,11 +58,11 @@ class TournamentController extends Controller
     public function update(Request $request, Tournament $tournament)
     {
         $validated = $request->validate([
-            'name'      => 'required|string|max:150',
-            'edition'   => 'required|integer|min:2000|max:2100',
-            'format'    => 'required|in:groups_knockout,league,knockout',
+            'name'      => 'required|string|max:255',
+            'edition'   => 'required|integer|min:1900|max:2100',
+            'format'    => 'required|in:groups_knockout,league',
             'starts_at' => 'required|date',
-            'ends_at'   => 'nullable|date|after:starts_at',
+            'ends_at'   => 'nullable|date|after_or_equal:starts_at',
             'status'    => 'required|in:draft,active,finished',
         ]);
 

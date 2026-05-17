@@ -129,6 +129,16 @@ Abre `http://127.0.0.1:8000` en el navegador.
 
 ---
 
+### 9. Iniciar el procesador de correos (Queue)
+
+Para que los correos se envíen correctamente, ejecuta en una terminal separada:
+
+```bash
+php artisan queue:work
+```
+
+> **Nota:** Este proceso debe estar corriendo mientras uses el sistema para que los correos de resultados, equipos registrados y campeones lleguen correctamente.
+
 ## 👤 Credenciales de prueba
 
 | Rol | Email | Contraseña |

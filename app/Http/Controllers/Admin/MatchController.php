@@ -35,10 +35,10 @@ class MatchController extends Controller
     public function update(Request $request, TournamentMatch $match)
     {
         $validated = $request->validate([
-            'home_score'     => 'required|integer|min:0',
-            'away_score'     => 'required|integer|min:0',
-            'home_penalties' => 'nullable|integer|min:0',
-            'away_penalties' => 'nullable|integer|min:0',
+            'home_score'     => 'required|integer|min:0|max:99',
+            'away_score'     => 'required|integer|min:0|max:99',
+            'home_penalties' => 'nullable|integer|min:0|max:99',
+            'away_penalties' => 'nullable|integer|min:0|max:99',
             'goals'          => 'nullable|array',
             'goals.*.player_id' => 'nullable|exists:players,id',
             'goals.*.minute'    => 'required|integer|min:1|max:120',
