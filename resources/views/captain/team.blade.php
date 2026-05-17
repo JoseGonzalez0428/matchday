@@ -31,13 +31,14 @@
             No hay jugadores registrados en este equipo.
         </div>
     @else
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto"><table class="w-full text-sm">
             <thead class="bg-green-50 text-green-800">
                 <tr>
                     <th class="text-left px-4 py-3">#</th>
                     <th class="text-left px-4 py-3">Nombre</th>
                     <th class="text-left px-4 py-3">Posición</th>
                     <th class="text-left px-4 py-3">Nacionalidad</th>
+                    <th class="px-4 py-3"></th>
                 </tr>
             </thead>
             <tbody>
@@ -55,10 +56,14 @@
                         </span>
                     </td>
                     <td class="px-4 py-3 text-gray-500">{{ $player->nationality ?? '—' }}</td>
+                    <td class="px-4 py-3 text-center">
+                        <a href="{{ route('captain.players.show', $player) }}"
+                        class="text-green-700 hover:underline text-sm">Ver</a>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>
-        </table>
+        </table></div>
     @endif
 </div>
 @endsection

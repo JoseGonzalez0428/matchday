@@ -8,7 +8,7 @@
 </div>
 
 <div class="bg-white rounded-xl shadow overflow-hidden">
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto"><table class="w-full text-sm">
         <thead class="bg-green-700 text-white">
             <tr>
                 <th class="text-left px-4 py-3">Torneo</th>
@@ -60,7 +60,7 @@
             </tr>
             @endforelse
         </tbody>
-    </table>
+    </table></div>
     <div class="px-4 py-3 border-t">
         {{ $matches->links() }}
     </div>

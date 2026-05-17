@@ -8,7 +8,7 @@
         <h1 class="text-3xl font-bold text-green-800">👤 Jugadores</h1>
         <p class="text-gray-500 mt-1">{{ $team->name }}</p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
         <a href="{{ route('admin.teams.show', $team) }}"
            class="px-4 py-2 rounded-lg border hover:bg-gray-50 text-gray-600 text-sm">
             ← Volver al equipo
@@ -21,7 +21,7 @@
 </div>
 
 <div class="bg-white rounded-xl shadow overflow-hidden">
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto"><table class="w-full text-sm">
         <thead class="bg-green-700 text-white">
             <tr>
                 <th class="text-left px-4 py-3">#</th>
@@ -68,6 +68,6 @@
             </tr>
             @endforelse
         </tbody>
-    </table>
+    </table></div>
 </div>
 @endsection

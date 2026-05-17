@@ -34,6 +34,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 Route::middleware(['auth', 'role:captain'])->prefix('captain')->name('captain.')->group(function () {
     Route::get('/dashboard', [Captain\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/team', [Captain\TeamController::class, 'show'])->name('team.show');
+    Route::get('players/{player}', [Captain\TeamController::class, 'playerShow'])->name('players.show');
 });
 
 Route::get('/dashboard', function () {

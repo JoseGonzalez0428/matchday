@@ -8,7 +8,7 @@
         <h1 class="text-3xl font-bold text-green-800">🏆 Bracket</h1>
         <p class="text-gray-500 mt-1">{{ $tournament->name }} · {{ $tournament->edition }}</p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
         <a href="{{ route('admin.tournaments.pdf.bracket', $tournament) }}"
            class="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800">
             📄 PDF Bracket

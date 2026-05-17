@@ -8,7 +8,7 @@
         <h1 class="text-3xl font-bold text-green-800">🏆 {{ $tournament->name }}</h1>
         <p class="text-gray-500 mt-1">{{ $tournament->edition }} · {{ ucfirst($tournament->format) }}</p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
         <a href="{{ route('admin.tournaments.bracket', $tournament) }}"
             class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">
             🏆 Ver Bracket
@@ -17,7 +17,8 @@
         <form method="POST" action="{{ route('admin.tournaments.simulate', $tournament) }}"
             onsubmit="return confirm('¿Simular todos los partidos pendientes con IA? Esto puede tardar varios minutos.')">
             @csrf
-            <button type="submit"
+            <button type="button"
+                    onclick="document.getElementById('simulate-confirm-modal').classList.remove('hidden')"
                     class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">
                 🤖 Simular con IA
             </button>
@@ -179,7 +180,7 @@
     @foreach($standings as $groupName => $teams)
     <div class="mb-6">
         <h3 class="font-bold text-green-700 mb-2">Grupo {{ $groupName }}</h3>
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto"><table class="w-full text-sm">
             <thead class="bg-green-50 text-green-800">
                 <tr>
                     <th class="text-left px-3 py-2">#</th>
@@ -212,7 +213,7 @@
                 </tr>
                 @endforeach
             </tbody>
-        </table>
+        </table></div>
     </div>
     @endforeach
 </div>
@@ -243,7 +244,7 @@
             } }}
         </h3>
         @foreach($matches as $match)
-        <div class="flex items-center justify-between border rounded-lg px-4 py-3 mb-2 hover:bg-gray-50">
+        <div class="flex flex-wrap items-center justify-between border rounded-lg px-4 py-3 mb-2 hover:bg-gray-50 gap-2">
             <span class="font-medium w-1/3 text-right">{{ $match->homeTeam->name }}</span>
             <span class="mx-4 text-gray-500 text-sm">
                 @if($match->status === 'finished')
@@ -397,4 +398,63 @@
     });
     </script>
     @endif
+
+    {{-- Modal confirmación simulación IA --}}
+    <div id="simulate-confirm-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center"
+        onclick="this.classList.add('hidden')">
+        <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 w-full"
+            onclick="event.stopPropagation()">
+
+            <button onclick="document.getElementById('simulate-confirm-modal').classList.add('hidden')"
+                    class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">✕</button>
+
+            <div class="text-center mb-6">
+                <div class="text-5xl mb-3">🤖</div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Simular con IA</h2>
+                <p class="text-gray-500 text-sm">
+                    Gemini AI analizará cada partido pendiente y predecirá el resultado.
+                    Este proceso puede tardar varios minutos.
+                </p>
+            </div>
+
+            @php
+                $pendingCount = $tournament->matches()->where('status', 'scheduled')->count();
+                $currentStage = $tournament->matches()->where('status', 'scheduled')->first()?->stage ?? 'group';
+            @endphp
+
+            <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">⚽</span>
+                    <div>
+                        <p class="font-bold text-purple-700">{{ $pendingCount }} partidos pendientes</p>
+                        <p class="text-sm text-purple-500">
+                            Fase: {{ \App\Helpers\StatusHelper::stage($currentStage) }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-xs text-gray-400 text-center mb-6">
+                Si la IA falla en algunos partidos, se te preguntará si deseas completarlos aleatoriamente.
+            </p>
+
+            <div class="flex gap-3">
+                <form method="POST"
+                    action="{{ route('admin.tournaments.simulate', $tournament) }}"
+                    class="flex-1">
+                    @csrf
+                    <button type="submit"
+                            class="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors">
+                        🤖 Simular con IA
+                    </button>
+                </form>
+                <button onclick="document.getElementById('simulate-confirm-modal').classList.add('hidden')"
+                        class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection

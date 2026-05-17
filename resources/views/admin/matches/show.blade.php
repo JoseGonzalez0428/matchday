@@ -33,14 +33,14 @@
 
 {{-- Resultado --}}
 <div class="bg-white rounded-xl shadow p-8 mb-6">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="text-center w-1/3">
             <p class="text-2xl font-bold text-gray-800">{{ $match->homeTeam->name }}</p>
             <p class="text-sm text-gray-400">Local</p>
         </div>
         <div class="text-center">
             @if($match->status === 'finished')
-            <p class="text-5xl font-bold text-green-700">
+            <p class="text-4xl md:text-5xl font-bold text-green-700">
                 {{ $match->home_score }} — {{ $match->away_score }}
             </p>
             @if(!is_null($match->home_penalties))
@@ -66,8 +66,8 @@
                 {{ \App\Helpers\StatusHelper::match($match->status) }}
             </span>
         </div>
-        <div class="text-center w-1/3">
-            <p class="text-2xl font-bold text-gray-800">{{ $match->awayTeam->name }}</p>
+        <div class="text-center md:w-1/3">
+            <p class="text-xl md:text-2xl font-bold text-gray-800">{{ $match->awayTeam->name }}</p>
             <p class="text-sm text-gray-400">Visitante</p>
         </div>
     </div>
@@ -77,7 +77,7 @@
 @if($match->goals->isNotEmpty())
 <div class="bg-white rounded-xl shadow p-6 mb-6">
     <h2 class="text-xl font-bold text-gray-700 mb-4">⚽ Goles</h2>
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto"><table class="w-full text-sm">
         <thead class="bg-green-50 text-green-800">
             <tr>
                 <th class="text-left px-4 py-2">Jugador</th>
@@ -101,7 +101,7 @@
             </tr>
             @endforeach
         </tbody>
-    </table>
+    </table></div>
 </div>
 @endif
 

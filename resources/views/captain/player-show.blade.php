@@ -1,9 +1,9 @@
-@extends('layouts.admin')
+@extends('layouts.captain')
 
 @section('title', $player->name)
 
 @section('content')
-<div class="flex justify-between items-center mb-6">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-6">
     <div>
         <h1 class="text-3xl font-bold text-green-800">👤 {{ $player->name }}</h1>
         <p class="text-gray-500 mt-1">
@@ -11,16 +11,10 @@
             {{ \App\Helpers\StatusHelper::position($player->position) }}
         </p>
     </div>
-    <div class="flex flex-wrap gap-2">
-        <a href="{{ route('admin.teams.players.edit', [$team, $player]) }}"
-           class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
-            Editar
-        </a>
-        <a href="{{ route('admin.teams.players.index', $team) }}"
-           class="px-4 py-2 rounded-lg border hover:bg-gray-50 text-gray-600 text-sm">
-            ← Volver
-        </a>
-    </div>
+    <a href="{{ route('captain.team.show') }}"
+       class="px-4 py-2 rounded-lg border hover:bg-gray-50 text-gray-600 text-sm">
+        ← Volver al equipo
+    </a>
 </div>
 
 {{-- Stats generales --}}

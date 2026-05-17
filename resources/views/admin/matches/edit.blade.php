@@ -69,7 +69,7 @@
         @method('PUT')
 
         {{-- Resultado --}}
-        <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                     Goles — {{ $match->homeTeam->name }} (Local)
@@ -101,7 +101,7 @@
         <div id="penalties-section" class="{{ ($match->home_score === $match->away_score && $match->status === 'finished') ? '' : 'hidden' }} bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
             <h3 class="font-bold text-blue-700 mb-3">⚽ Resultado de Penales</h3>
             <p class="text-blue-600 text-xs mb-3">Este partido eliminatorio terminó en empate. Registra el marcador de penales.</p>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         Penales — {{ $match->homeTeam->name }}

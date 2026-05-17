@@ -253,11 +253,33 @@ class FixtureService
                 $fixtures[] = ['home' => $first['K'], 'away' => $t87];
 
             // ── Verificar que se generaron 16 cruces ──────────────
+            // Si faltan cruces, completar con terceros no usados vs primeros sin par
+            if (count($fixtures) < 16) {
+                $pairedFirsts = array_map(fn($f) => $f['home']->id, $fixtures);
+                $remainingFirsts = array_filter($first, 
+                    fn($team) => !in_array($team->id, $pairedFirsts)
+                );
+                $remainingThirds = array_filter($thirdsByGroup,
+                    fn($team) => !in_array($team->id, array_map(fn($f) => $f['away']->id, $fixtures))
+                );
+
+                $remainingFirstsList  = array_values($remainingFirsts);
+                $remainingThirdsList  = array_values($remainingThirds);
+
+                foreach ($remainingFirstsList as $i => $team) {
+                    if (isset($remainingThirdsList[$i])) {
+                        $fixtures[] = [
+                            'home' => $team,
+                            'away' => $remainingThirdsList[$i],
+                        ];
+                    }
+                    if (count($fixtures) >= 16) break;
+                }
+            }
+
             if (count($fixtures) !== 16) {
                 throw new \Exception(
-                    "No se pudieron generar los 16 cruces de la Ronda de 32. " .
-                    "Se generaron " . count($fixtures) . ". " .
-                    "Verifica que los 8 mejores terceros estén en grupos compatibles con la tabla FIFA."
+                    "No se pudieron generar los 16 cruces. Se generaron " . count($fixtures) . "."
                 );
             }
 

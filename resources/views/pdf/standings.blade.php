@@ -49,7 +49,7 @@
                     </tr>
                 @endforeach
             </tbody>
-        </table>
+        </table></div>
     @endforeach
 
     <div class="footer">MatchDay · Sistema de Gestión de Torneos</div>

@@ -19,7 +19,7 @@
             <p class="text-gray-500">{{ $team->country ?? 'Sin país' }} · Capitán: {{ $team->captain->name ?? '—' }}</p>
         </div>
     </div>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
         <a href="{{ route('admin.teams.players.index', $team) }}"
            class="bg-green-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-800">
             👤 Jugadores ({{ $team->players->count() }})
@@ -62,7 +62,7 @@
     @if($team->groups->isEmpty())
         <p class="text-gray-400 text-sm">Este equipo no está inscrito en ningún torneo.</p>
     @else
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto"><table class="w-full text-sm">
             <thead class="bg-green-50 text-green-800">
                 <tr>
                     <th class="text-left px-4 py-2">Torneo</th>
@@ -91,7 +91,7 @@
                 </tr>
                 @endforeach
             </tbody>
-        </table>
+        </table></div>
     @endif
 </div>
 

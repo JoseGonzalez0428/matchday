@@ -21,7 +21,7 @@
     @if($tournaments->isEmpty())
         <p class="text-gray-400 text-sm">No hay torneos registrados aún.</p>
     @else
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto"><table class="w-full text-sm">
             <thead class="bg-green-50 text-green-800">
                 <tr>
                     <th class="text-left px-4 py-2">Nombre</th>
@@ -52,7 +52,7 @@
                 </tr>
                 @endforeach
             </tbody>
-        </table>
+        </table></div>
     @endif
 </div>
 

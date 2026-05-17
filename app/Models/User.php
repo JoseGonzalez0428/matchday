@@ -40,4 +40,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Tournament::class, 'created_by');
     }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
 }
