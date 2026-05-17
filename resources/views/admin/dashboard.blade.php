@@ -58,6 +58,18 @@
 
 {{-- Gráficos --}}
 @if($activeTournament)
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <h2 class="text-lg font-bold text-gray-700">Estadísticas del torneo</h2>
+    <select id="tournament-select"
+            class="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+        @foreach($tournaments as $t)
+            <option value="{{ $t->id }}" {{ $t->id === $activeTournament->id ? 'selected' : '' }}>
+                {{ $t->name }} {{ $t->edition }}
+            </option>
+        @endforeach
+    </select>
+</div>
+
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-white rounded-xl shadow p-6">
         <h3 class="font-bold text-gray-700 mb-4">Goles por jornada</h3>
@@ -70,11 +82,18 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
-    const res = await fetch('{{ route('admin.chart-data', $activeTournament) }}');
+let goalsChart = null;
+let resultsChart = null;
+
+async function loadCharts(tournamentId) {
+    const res = await fetch(`/admin/tournaments/${tournamentId}/chart-data`);
     const data = await res.json();
 
-    new Chart(document.getElementById('goalsChart'), {
+    // Destruir gráficas anteriores si existen
+    if (goalsChart) goalsChart.destroy();
+    if (resultsChart) resultsChart.destroy();
+
+    goalsChart = new Chart(document.getElementById('goalsChart'), {
         type: 'line',
         data: {
             labels: data.goals_by_day.map(d => d.label),
@@ -90,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         options: { responsive: true }
     });
 
-    new Chart(document.getElementById('resultsChart'), {
+    resultsChart = new Chart(document.getElementById('resultsChart'), {
         type: 'doughnut',
         data: {
             labels: ['Victoria local', 'Victoria visitante', 'Empate'],
@@ -101,6 +120,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         },
         options: { responsive: true }
     });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const select = document.getElementById('tournament-select');
+    loadCharts(select.value);
+    select.addEventListener('change', () => loadCharts(select.value));
 });
 </script>
 @endif

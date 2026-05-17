@@ -106,14 +106,20 @@
 @endif
 
 {{-- Info adicional --}}
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="bg-white rounded-xl shadow p-4">
-        <p class="text-xs text-gray-500 uppercase">Torneo</p>
-        <p class="font-bold text-gray-700">{{ $match->tournament->name }}</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-gray-50 rounded-xl p-4">
+        <p class="text-xs text-gray-400 uppercase">Torneo</p>
+        <p class="font-bold text-gray-800">{{ $match->tournament->name }}</p>
     </div>
-    <div class="bg-white rounded-xl shadow p-4">
-        <p class="text-xs text-gray-500 uppercase">Grupo / Fase</p>
-        <p class="font-bold text-gray-700">{{ $match->group->name ?? \App\Helpers\StatusHelper::stage($match->stage) }}</p>
+    <div class="bg-gray-50 rounded-xl p-4">
+        <p class="text-xs text-gray-400 uppercase">Grupo / Fase</p>
+        <p class="font-bold text-gray-800">
+            {{ $match->group ? 'Grupo ' . $match->group->name : \App\Helpers\StatusHelper::stage($match->stage) }}
+        </p>
+    </div>
+    <div class="bg-gray-50 rounded-xl p-4">
+        <p class="text-xs text-gray-400 uppercase">Fecha</p>
+        <p class="font-bold text-gray-800">{{ $match->played_at->format('d/m/Y H:i') }}</p>
     </div>
 </div>
 @endsection
