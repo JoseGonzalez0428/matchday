@@ -51,13 +51,11 @@
                         class="text-green-700 hover:underline">Ver</a>
                     <a href="{{ route('admin.teams.players.edit', [$team, $player]) }}"
                        class="text-blue-600 hover:underline">Editar</a>
-                    <form method="POST"
-                          action="{{ route('admin.teams.players.destroy', [$team, $player]) }}"
-                          onsubmit="return confirm('¿Eliminar este jugador?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
-                    </form>
+                    <button type="button"
+                            onclick="confirmDelete('{{ route('admin.teams.players.destroy', [$team, $player]) }}', '¿Eliminar este jugador? Esta acción no se puede deshacer.')"
+                            class="text-red-600 hover:underline">
+                        Eliminar
+                    </button>
                 </td>
             </tr>
             @empty

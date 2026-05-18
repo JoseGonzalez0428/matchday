@@ -28,15 +28,11 @@
            class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
             Editar
         </a>
-        <form method="POST" action="{{ route('admin.teams.destroy', $team) }}"
-              onsubmit="return confirm('¿Eliminar este equipo?')">
-            @csrf
-            @method('DELETE')
-            <button type="submit"
-                    class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700">
-                Eliminar
-            </button>
-        </form>
+        <button type="button"
+                onclick="confirmDelete('{{ route('admin.teams.destroy', $team) }}', '¿Eliminar el equipo {{ $team->name }}? Esta acción no se puede deshacer.')"
+                class="text-red-600 hover:underline">
+            Eliminar
+        </button>
     </div>
 </div>
 

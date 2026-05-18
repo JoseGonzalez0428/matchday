@@ -76,5 +76,49 @@
         @yield('content')
     </main>
 
+    {{-- Modal de confirmación de eliminación --}}
+<div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center"
+     onclick="closeDeleteModal()">
+    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl p-8 max-w-sm mx-4 w-full"
+         onclick="event.stopPropagation()">
+
+        <div class="text-center mb-6">
+            <div class="text-5xl mb-3">🗑️</div>
+            <h2 class="text-xl font-bold text-gray-800 mb-2">¿Eliminar registro?</h2>
+            <p id="delete-modal-message" class="text-gray-500 text-sm">
+                Esta acción no se puede deshacer.
+            </p>
+        </div>
+
+        <div class="flex gap-3">
+            <form id="delete-modal-form" method="POST" class="flex-1">
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                        class="w-full bg-red-600 text-white py-3 rounded-xl font-medium hover:bg-red-700 transition-colors">
+                    Sí, eliminar
+                </button>
+            </form>
+            <button onclick="closeDeleteModal()"
+                    class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(url, message) {
+    document.getElementById('delete-modal-form').action = url;
+    document.getElementById('delete-modal-message').textContent = message || 'Esta acción no se puede deshacer.';
+    document.getElementById('delete-modal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    document.getElementById('delete-modal').classList.add('hidden');
+}
+</script>
+
 </body>
 </html>

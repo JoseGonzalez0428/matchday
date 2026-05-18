@@ -95,12 +95,11 @@ class TeamController extends Controller
 
     public function destroy(Team $team)
     {
-        if ($team->shield_url) {
-            Storage::disk('public')->delete($team->shield_url);
+        if ($team->homeMatches()->exists() || $team->awayMatches()->exists()) {
+            return back()->with('error', 'No puedes eliminar este equipo porque tiene partidos registrados.');
         }
-        $team->delete();
 
-        return redirect()->route('admin.teams.index')
-            ->with('success', 'Equipo eliminado exitosamente.');
+        $team->delete();
+        return back()->with('success', 'Equipo eliminado exitosamente.');
     }
 }

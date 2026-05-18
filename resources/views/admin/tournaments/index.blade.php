@@ -43,12 +43,11 @@
                        class="text-green-700 hover:underline">Ver</a>
                     <a href="{{ route('admin.tournaments.edit', $tournament) }}"
                        class="text-blue-600 hover:underline">Editar</a>
-                    <form method="POST" action="{{ route('admin.tournaments.destroy', $tournament) }}"
-                          onsubmit="return confirm('¿Eliminar este torneo?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
-                    </form>
+                    <button type="button"
+                            onclick="confirmDelete('{{ route('admin.tournaments.destroy', $tournament) }}', '¿Eliminar este torneo? Esta acción no se puede deshacer.')"
+                            class="text-red-600 hover:underline">
+                        Eliminar
+                    </button>
                 </td>
             </tr>
             @empty

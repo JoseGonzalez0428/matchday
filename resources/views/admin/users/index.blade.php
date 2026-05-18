@@ -41,12 +41,11 @@
                 <td class="px-4 py-3 flex gap-2 justify-center">
                     <a href="{{ route('admin.users.edit', $captain) }}"
                        class="text-blue-600 hover:underline">Editar</a>
-                    <form method="POST" action="{{ route('admin.users.destroy', $captain) }}"
-                          onsubmit="return confirm('¿Eliminar este capitán?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
-                    </form>
+                    <button type="button"
+                            onclick="confirmDelete('{{ route('admin.users.destroy', $captain) }}', '¿Eliminar este capitán? Esta acción no se puede deshacer.')"
+                            class="text-red-600 hover:underline">
+                        Eliminar
+                    </button>
                 </td>
             </tr>
             @empty

@@ -245,7 +245,7 @@
         </h3>
         @foreach($matches as $match)
         <div class="flex flex-wrap items-center justify-between border rounded-lg px-4 py-3 mb-2 hover:bg-gray-50 gap-2">
-            <span class="font-medium w-1/3 text-right">{{ $match->homeTeam->name }}</span>
+            <span class="font-medium w-1/3 text-right">{{ $match->homeTeam?->name ?? '(Equipo eliminado)' }}</span>
             <span class="mx-4 text-gray-500 text-sm">
                 @if($match->status === 'finished')
                     <div class="text-center">
@@ -258,7 +258,7 @@
                     <span class="text-xs">{{ $match->played_at->format('d/m H:i') }}</span>
                 @endif
             </span>
-            <span class="font-medium w-1/3">{{ $match->awayTeam->name }}</span>
+            <span class="font-medium w-1/3 text-left">{{ $match->awayTeam?->name ?? '(Equipo eliminado)' }}</span>
             @if($match->status === 'finished')
                 <a href="{{ route('admin.matches.show', $match) }}?from=tournament&id={{ $tournament->id }}"
                 class="text-xs text-green-700 hover:underline ml-4">

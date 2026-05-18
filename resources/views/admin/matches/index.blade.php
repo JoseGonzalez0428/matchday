@@ -15,7 +15,7 @@
                 <th class="text-left px-4 py-3">Local</th>
                 <th class="text-left px-4 py-3">Resultado</th>
                 <th class="text-left px-4 py-3">Visitante</th>
-                <td class="px-4 py-3 text-gray-500">{{ $match->played_at->format('d/m/Y H:i') }}</td>
+                <td class="px-4 py-3 text-gray-500">Fecha</td>
                 <th class="text-left px-4 py-3">Estado</th>
                 <th class="px-4 py-3">Acciones</th>
             </tr>
