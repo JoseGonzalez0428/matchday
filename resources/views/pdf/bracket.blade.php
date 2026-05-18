@@ -72,11 +72,11 @@
 
             $out  = "<div class='{$cardClass}'>";
             $out .= "<div class='".($hw ? $winClass : 'row')."'>";
-            $out .= "<span class='team'>".e($match->homeTeam->name)."</span>";
+            $out .= "<span class='team'>".e($match->homeTeam?->name ?? '(Equipo eliminado)')."</span>";
             $out .= "<span class='score'>{$hs}</span></div>";
 
             $out .= "<div class='".($aw ? $winClass : 'row')."'>";
-            $out .= "<span class='team'>".e($match->awayTeam->name)."</span>";
+            $out .= "<span class='team'>".e($match->awayTeam?->name ?? '(Equipo eliminado)')."</span>";
             $out .= "<span class='score'>{$as}</span></div>";
 
             if (!is_null($match->home_penalties)) {
@@ -165,7 +165,7 @@
                     @endphp
                     <div class="champion">
                         <div class="champ-label">Campeon</div>
-                        <div class="champ-name">{{ $champ->name }}</div>
+                        <div class="champ-name">{{ $champ?->name ?? '(Equipo eliminado)' }}</div>
                     </div>
                     @endif
                 @endforeach

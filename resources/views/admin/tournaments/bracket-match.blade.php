@@ -9,7 +9,7 @@
 <div class="w-52 {{ $borderColor }} rounded-xl overflow-hidden shadow-sm">
     <div class="flex items-center justify-between px-3 py-2 border-b {{ $homeWins ? $winBg : 'bg-white' }}">
         <span class="text-sm font-medium truncate max-w-32">
-            {{ $match->homeTeam?->name ?? '(Equipo eliminado)' }}
+            {{ <a href="{{ route('admin.matches.show', $match) }}" class="btn">Ver en MatchDay</a>e ?? '(Equipo eliminado)' }}
             @if($homeWins && $color === 'yellow') 🏆 @endif
         </span>
         <span class="text-sm font-bold ml-2 {{ $homeWins ? $winText : 'text-gray-500' }}">

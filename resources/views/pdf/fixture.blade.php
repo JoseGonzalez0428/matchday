@@ -40,7 +40,7 @@
             <tbody>
                 @foreach($groupMatches as $match)
                     <tr>
-                        <td style="text-align:left;">{{ $match->homeTeam->name }}</td>
+                        <td style="text-align:left;">{{ $match->homeTeam?->name ?? '(Equipo eliminado)' }}</td>
                         <td>
                             @if($match->status === 'finished')
                                 {{ $match->home_score }} - {{ $match->away_score }}
@@ -48,7 +48,7 @@
                                 vs
                             @endif
                         </td>
-                        <td style="text-align:left;">{{ $match->awayTeam->name }}</td>
+                        <td style="text-align:left;">{{ $match->awayTeam?->name ?? '(Equipo eliminado)' }}</td>
                         <td>{{ $match->played_at->format('d/m/Y H:i') }}</td>
                         <td class="status-{{ $match->status }}">{{ \App\Helpers\StatusHelper::match($match->status) }}</td>
                     </tr>

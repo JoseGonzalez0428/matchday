@@ -24,7 +24,7 @@
             @forelse($matches as $match)
             <tr class="border-t hover:bg-gray-50">
                 <td class="px-4 py-3 text-gray-500">{{ $match->tournament->name }}</td>
-                <td class="px-4 py-3 font-medium">{{ $match->homeTeam->name }}</td>
+                <td class="px-4 py-3 font-medium">{{ $match->homeTeam?->name ?? '(Equipo eliminado)' }}</td>
                 <td class="px-4 py-3 text-center font-bold">
                     @if($match->status === 'finished')
                         {{ $match->home_score }} - {{ $match->away_score }}
@@ -32,7 +32,7 @@
                         vs
                     @endif
                 </td>
-                <td class="px-4 py-3 font-medium">{{ $match->awayTeam->name }}</td>
+                <td class="px-4 py-3 font-medium">{{ $match->awayTeam?->name ?? '(Equipo eliminado)' }}</td>
                 <td class="px-4 py-3 text-gray-500">{{ $match->played_at->format('d/m/Y H:i') }}</td>
                 <td class="px-4 py-3">
                     <span class="px-2 py-1 rounded-full text-xs font-medium
