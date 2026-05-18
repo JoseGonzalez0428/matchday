@@ -136,14 +136,11 @@
                 @forelse($group->teams as $team)
                 <div class="flex items-center justify-between py-2 border-b last:border-0">
                     <span class="text-sm font-medium">{{ $team->name }}</span>
-                    <form method="POST"
-                          action="{{ route('admin.tournaments.groups.teams.destroy', [$tournament, $group, $team]) }}">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-500 hover:text-red-700 text-xs">
-                            Quitar
-                        </button>
-                    </form>
+                    <button type="button"
+                            onclick="confirmDelete('{{ route('admin.tournaments.groups.teams.destroy', [$tournament, $group, $team]) }}', '¿Quitar a {{ $team->name }} del Grupo {{ $group->name }}?')"
+                            class="text-red-500 hover:text-red-700 text-xs">
+                        Quitar
+                    </button>
                 </div>
                 @empty
                     <p class="text-gray-400 text-xs mb-3">Sin equipos asignados.</p>

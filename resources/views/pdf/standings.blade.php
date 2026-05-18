@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚽ MatchDay — Tabla de Posiciones</div>
+        <div class="title">MatchDay — Tabla de Posiciones</div>
         <div class="subtitle">{{ $tournament->name }} · Generado el {{ now()->format('d/m/Y H:i') }}</div>
     </div>
 

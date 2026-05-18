@@ -21,7 +21,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚽ MatchDay — Fixture</div>
+        <div class="title">MatchDay — Fixture</div>
         <div class="subtitle">{{ $tournament->name }} · Generado el {{ now()->format('d/m/Y H:i') }}</div>
     </div>
 
