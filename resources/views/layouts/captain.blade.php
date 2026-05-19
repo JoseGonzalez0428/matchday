@@ -7,7 +7,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-50 font-sans antialiased text-gray-800">
+<body class="bg-slate-50 font-sans antialiased text-gray-800 text-base">
 
     {{-- Navbar Superior Capitán --}}
     <nav class="bg-gradient-to-r from-green-900 to-green-800 text-white shadow-md sticky top-0 z-40">

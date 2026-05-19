@@ -124,7 +124,16 @@ class FixtureService
         $totalWithThirds  = $hasThirdPlace ? $totalClassified + 8 : $totalClassified;
 
         $fixtures  = [];
-        $startDate = \Carbon\Carbon::now()->addDays(3);
+        // Usar la fecha del último partido del torneo + 3 días
+        $lastMatch = $tournament->matches()
+            ->where('status', 'finished')
+            ->orderByDesc('played_at')
+            ->first();
+
+        $startDate = $lastMatch 
+            ? \Carbon\Carbon::parse($lastMatch->played_at)->addDays(3)
+            : \Carbon\Carbon::now()->addDays(3);
+        
 
         // ── Determinar etapa ──────────────────────────────────
         if (!$hasRound32 && !$hasRound16 && !$hasQuarter && !$hasSemi && !$hasFinal) {
