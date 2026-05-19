@@ -259,15 +259,19 @@ class TournamentController extends Controller
             return back()->with('error', 'Este equipo ya está en un grupo de este torneo.');
         }
 
-        // Validar máximo de equipos por grupo (todos los grupos deben tener el mismo número)
-        $maxTeamsPerGroup = $tournament->groups()
-            ->withCount('teams')
-            ->get()
-            ->max('teams_count');
+        // Validar máximo 8 equipos por grupo
+        if ($group->teams()->count() >= 8) {
+            return back()->with('error', 'Un grupo no puede tener más de 8 equipos.');
+        }
 
-        if ($maxTeamsPerGroup && $group->teams()->count() >= $maxTeamsPerGroup && 
-            $tournament->groups()->withCount('teams')->get()->min('teams_count') === $maxTeamsPerGroup) {
-            return back()->with('error', "Todos los grupos ya tienen {$maxTeamsPerGroup} equipos. No puedes agregar más a este grupo.");
+        // Validar que los grupos tengan el mismo número de equipos
+        // Solo bloquear si TODOS los grupos ya tienen el máximo
+        $groupCounts = $tournament->groups()->withCount('teams')->get()->pluck('teams_count');
+        $minCount = $groupCounts->min();
+        $maxCount = $groupCounts->max();
+
+        if ($group->teams()->count() > $minCount) {
+            return back()->with('error', "Agrega primero equipos a los grupos que tienen menos equipos para mantener el balance.");
         }
 
         // Máximo 8 equipos por grupo

@@ -3,70 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatchDay — Recuperar contraseña</title>
+    <title>MatchDay — Iniciar sesión</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-green-900 min-h-screen flex items-center justify-center">
+<body class="bg-gradient-to-br from-green-950 via-green-900 to-emerald-950 min-h-screen flex items-center justify-center antialiased px-4">
 
-    <div class="w-full max-w-md px-6">
+    <div class="w-full max-w-md my-8">
 
-        {{-- Logo --}}
-        <div class="text-center mb-8">
-            <div class="text-7xl mb-4">⚽</div>
-            <h1 class="text-4xl font-bold text-white tracking-wide">MatchDay</h1>
-            <p class="text-green-300 mt-2 text-sm">Sistema de Gestión de Torneos</p>
+        {{-- Logo e Identidad Visual --}}
+        <div class="text-center mb-6">
+            <div class="text-6xl drop-shadow-md">⚽</div>
+            <h1 class="text-3xl font-black text-white tracking-tight mt-3">MatchDay</h1>
+            <p class="text-green-300/80 mt-1 text-xs font-semibold uppercase tracking-wider">Sistema de Gestión de Torneos</p>
         </div>
 
-        {{-- Card --}}
-        <div class="bg-white rounded-2xl shadow-2xl p-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2 text-center">Recuperar contraseña</h2>
-            <p class="text-gray-500 text-sm text-center mb-6">
-                Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.
+        {{-- Contenedor de Formulario --}}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-2xl p-6 md:p-8">
+            <h2 class="text-xl font-black text-gray-800 mb-2 text-center">Recuperar contraseña</h2>
+            <p class="text-xs text-gray-400 font-medium text-center mb-6 leading-relaxed">
+                Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
             </p>
 
+            {{-- Mensaje de Éxito al Enviar Enlace --}}
             @if(session('status'))
-                <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4 text-sm">
-                    {{ session('status') }}
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl mb-4 text-xs font-bold flex items-center gap-2">
+                    <span>✉️</span>
+                    <span>{{ session('status') }}</span>
                 </div>
             @endif
 
+            {{-- Alerta de Errores Operacionales --}}
             @if($errors->any())
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
-                    {{ $errors->first() }}
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-xs font-medium flex items-center gap-2">
+                    <span>❌</span>
+                    <span>{{ $errors->first() }}</span>
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('password.email') }}">
+            <form method="POST" action="{{ route('password.email') }}" class="space-y-5">
                 @csrf
 
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Correo electrónico
-                    </label>
-                    <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                           placeholder="tu@correo.com"
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm
-                                  focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent
-                                  @error('email') border-red-400 @enderror">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Correo electrónico</label>
+                    <input type="email" name="email" value="{{ old('email') }}" required autofocus placeholder="tu@correo.com"
+                           class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all shadow-sm @error('email') border-red-500 ring-2 ring-red-100 @enderror">
                 </div>
 
-                <button type="submit"
-                        class="w-full bg-green-700 text-white py-3 rounded-lg font-medium
-                               hover:bg-green-800 transition-colors duration-200">
+                <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-2.5 rounded-xl text-sm shadow-sm transition-all text-center">
                     Enviar enlace de recuperación
                 </button>
 
-                <p class="text-center text-sm text-gray-500 mt-4">
-                    <a href="{{ route('login') }}" class="text-green-700 hover:underline">
+                <p class="text-center text-xs font-semibold mt-4">
+                    <a href="{{ route('login') }}" class="text-gray-400 hover:text-green-700 transition-colors inline-flex items-center gap-1.5">
                         ← Volver al inicio de sesión
                     </a>
                 </p>
             </form>
         </div>
 
-        <p class="text-center text-green-400 text-xs mt-6">
-            Copa MatchDay 2026 · Desarrollo Web Avanzado
+        {{-- Footer Institucional --}}
+        <p class="text-center text-green-400/60 font-medium text-[10px] uppercase tracking-widest mt-6">
+            Copa MatchDay 2026 • Desarrollo Web Avanzado
         </p>
+
     </div>
 
 </body>
