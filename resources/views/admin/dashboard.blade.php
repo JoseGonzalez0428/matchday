@@ -33,7 +33,7 @@
             </thead>
             <tbody>
                 @foreach($tournaments as $tournament)
-                <tr class="border-t hover:bg-gray-50">
+                <tr class="border-t hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ route('admin.tournaments.show', $tournament) }}'">
                     <td class="px-4 py-3 font-medium">{{ $tournament->name }}</td>
                     <td class="px-4 py-3">{{ $tournament->edition }}</td>
                     <td class="px-4 py-3">
@@ -61,8 +61,8 @@
 <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
     <h2 class="text-lg font-bold text-gray-700">Estadísticas del torneo</h2>
     <select id="tournament-select"
-            class="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-        @foreach($tournaments as $t)
+    class="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-full md:w-auto md:min-w-64 cursor-pointer">
+            @foreach($tournaments as $t)
             <option value="{{ $t->id }}" {{ $t->id === $activeTournament->id ? 'selected' : '' }}>
                 {{ $t->name }} {{ $t->edition }}
             </option>
@@ -73,11 +73,13 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-white rounded-xl shadow p-6">
         <h3 class="font-bold text-gray-700 mb-4">Goles por jornada</h3>
-        <canvas id="goalsChart" height="200"></canvas>
+        <canvas id="goalsChart" height="120"></canvas>
     </div>
-    <div class="bg-white rounded-xl shadow p-6">
-        <h3 class="font-bold text-gray-700 mb-4">Distribución de resultados</h3>
-        <canvas id="resultsChart" height="200"></canvas>
+    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+        <h3 class="font-bold text-gray-700 mb-4 w-full">Distribución de resultados</h3>
+        <div style="width: 280px; height: 280px;">
+            <canvas id="resultsChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -118,7 +120,10 @@ async function loadCharts(tournamentId) {
                 backgroundColor: ['#15803d', '#1d4ed8', '#9ca3af'],
             }]
         },
-        options: { responsive: true }
+        options: { 
+            responsive: true,
+            maintainAspectRatio: false
+        }
     });
 }
 

@@ -175,42 +175,48 @@
 <div class="bg-white rounded-xl shadow p-6 mb-6">
     <h2 class="text-xl font-bold text-gray-700 mb-4">Tabla de Posiciones</h2>
     @foreach($standings as $groupName => $teams)
-    <div class="mb-6">
-        <h3 class="font-bold text-green-700 mb-2">Grupo {{ $groupName }}</h3>
-        <div class="overflow-x-auto"><table class="w-full text-sm">
-            <thead class="bg-green-50 text-green-800">
-                <tr>
-                    <th class="text-left px-3 py-2">#</th>
-                    <th class="text-left px-3 py-2">Equipo</th>
-                    <th class="px-3 py-2">PJ</th>
-                    <th class="px-3 py-2">G</th>
-                    <th class="px-3 py-2">E</th>
-                    <th class="px-3 py-2">P</th>
-                    <th class="px-3 py-2">GF</th>
-                    <th class="px-3 py-2">GC</th>
-                    <th class="px-3 py-2">DG</th>
-                    <th class="px-3 py-2 font-bold">Pts</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($teams as $pos => $row)
-                <tr class="border-t {{ $pos < 2 ? 'bg-green-50' : '' }}">
-                    <td class="px-3 py-2 text-gray-500">{{ $pos + 1 }}</td>
-                    <td class="px-3 py-2 font-medium">{{ $row['team']->name }}</td>
-                    <td class="px-3 py-2 text-center">{{ $row['played'] }}</td>
-                    <td class="px-3 py-2 text-center">{{ $row['won'] }}</td>
-                    <td class="px-3 py-2 text-center">{{ $row['drawn'] }}</td>
-                    <td class="px-3 py-2 text-center">{{ $row['lost'] }}</td>
-                    <td class="px-3 py-2 text-center">{{ $row['gf'] }}</td>
-                    <td class="px-3 py-2 text-center">{{ $row['gc'] }}</td>
-                    <td class="px-3 py-2 text-center">
-                        {{ $row['gd'] > 0 ? '+' : '' }}{{ $row['gd'] }}
-                    </td>
-                    <td class="px-3 py-2 text-center font-bold text-green-700">{{ $row['points'] }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table></div>
+    <div class="mb-4 border rounded-xl overflow-hidden">
+        <button onclick="toggleSection('standings-{{ $groupName }}')"
+                class="w-full flex justify-between items-center px-4 py-3 bg-green-50 hover:bg-green-100 text-left">
+            <span class="font-bold text-green-700">Grupo {{ $groupName }}</span>
+            <span id="standings-{{ $groupName }}-icon">∨</span>
+        </button>
+        <div id="standings-{{ $groupName }}" class="hidden">
+            <div class="overflow-x-auto"><table class="w-full text-sm">
+                <thead class="bg-green-50 text-green-800">
+                    <tr>
+                        <th class="text-left px-3 py-2">#</th>
+                        <th class="text-left px-3 py-2">Equipo</th>
+                        <th class="px-3 py-2">PJ</th>
+                        <th class="px-3 py-2">G</th>
+                        <th class="px-3 py-2">E</th>
+                        <th class="px-3 py-2">P</th>
+                        <th class="px-3 py-2">GF</th>
+                        <th class="px-3 py-2">GC</th>
+                        <th class="px-3 py-2">DG</th>
+                        <th class="px-3 py-2 font-bold">Pts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($teams as $pos => $row)
+                    <tr class="border-t {{ $pos < 2 ? 'bg-green-50' : '' }}">
+                        <td class="px-3 py-2 text-gray-500">{{ $pos + 1 }}</td>
+                        <td class="px-3 py-2 font-medium">{{ $row['team']->name }}</td>
+                        <td class="px-3 py-2 text-center">{{ $row['played'] }}</td>
+                        <td class="px-3 py-2 text-center">{{ $row['won'] }}</td>
+                        <td class="px-3 py-2 text-center">{{ $row['drawn'] }}</td>
+                        <td class="px-3 py-2 text-center">{{ $row['lost'] }}</td>
+                        <td class="px-3 py-2 text-center">{{ $row['gf'] }}</td>
+                        <td class="px-3 py-2 text-center">{{ $row['gc'] }}</td>
+                        <td class="px-3 py-2 text-center">
+                            {{ $row['gd'] > 0 ? '+' : '' }}{{ $row['gd'] }}
+                        </td>
+                        <td class="px-3 py-2 text-center font-bold text-green-700">{{ $row['points'] }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table></div>
+        </div>
     </div>
     @endforeach
 </div>
@@ -229,9 +235,11 @@
             ->groupBy(fn($m) => $m->stage === 'group' ? 'Grupo ' . ($m->group->name ?? '?') : $m->stage);
     @endphp
     @foreach($allMatches as $groupName => $matches)
-    <div class="mb-4">
-        <h3 class="font-bold text-green-700 mb-2">
-            {{ match($groupName) {
+    <div class="mb-4 border rounded-xl overflow-hidden">
+        <button onclick="toggleSection('matches-{{ $groupName }}')"
+                class="w-full flex justify-between items-center px-4 py-3 bg-gray-50 hover:bg-gray-100 text-left">
+            <span class="font-bold text-green-700">
+                {{ match($groupName) {
                 'round32' => 'Ronda de 32',
                 'round16' => 'Octavos de final',
                 'quarter' => 'Cuartos de final',
@@ -239,37 +247,85 @@
                 'final'   => 'Final',
                 default   => $groupName
             } }}
-        </h3>
+        </span>
+        <span class="text-xs text-gray-400">
+            {{ $matches->count() }} partidos
+        </span>
+        <span id="matches-{{ $groupName }}-icon">{{ str_starts_with($groupName, 'Grupo') ? '∨' : '∧' }}</span>
+        </button>
+        <div id="matches-{{ $groupName }}" 
+            class="{{ str_starts_with($groupName, 'Grupo') ? 'hidden' : '' }} p-4">
         @foreach($matches as $match)
-        <div class="flex flex-wrap items-center justify-between border rounded-lg px-4 py-3 mb-2 hover:bg-gray-50 gap-2">
-            <span class="font-medium w-1/3 text-right">{{ $match->homeTeam?->name ?? '(Equipo eliminado)' }}</span>
-            <span class="mx-4 text-gray-500 text-sm">
-                @if($match->status === 'finished')
-                    <div class="text-center">
-                        <span class="font-bold text-gray-800">{{ $match->home_score }} - {{ $match->away_score }}</span>
-                        @if(!is_null($match->home_penalties))
-                            <span class="text-xs text-blue-600 block">({{ $match->home_penalties }}-{{ $match->away_penalties }} pen)</span>
-                        @endif
-                    </div>
+        @php
+            $homeWins = $match->status === 'finished' && (
+                !is_null($match->home_penalties)
+                    ? $match->home_penalties > $match->away_penalties
+                    : $match->home_score > $match->away_score
+            );
+            $awayWins = $match->status === 'finished' && !$homeWins && $match->status === 'finished';
+            $matchUrl = $match->status === 'finished'
+                ? route('admin.matches.show', $match) . '?from=tournament&id=' . $tournament->id
+                : route('admin.matches.edit', $match) . '?from=tournament&id=' . $tournament->id;
+        @endphp
+        <div onclick="window.location='{{ $matchUrl }}'"
+            class="flex flex-wrap items-center justify-between border rounded-lg px-4 py-3 mb-2 hover:bg-green-50 gap-2 cursor-pointer transition-colors">
+
+            {{-- Equipo local --}}
+            <div class="flex items-center gap-2 w-5/12 justify-end">
+                <span class="font-medium text-right {{ $homeWins ? 'text-green-700 font-bold' : 'text-gray-700' }}">
+                    {{ $match->homeTeam?->name ?? '(Equipo eliminado)' }}
+                </span>
+                @if($homeWins)
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 flex-shrink-0"></span>
                 @else
-                    <span class="text-xs">{{ $match->played_at->format('d/m H:i') }}</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-transparent flex-shrink-0"></span>
                 @endif
-            </span>
-            <span class="font-medium w-1/3 text-left">{{ $match->awayTeam?->name ?? '(Equipo eliminado)' }}</span>
-            @if($match->status === 'finished')
-                <a href="{{ route('admin.matches.show', $match) }}?from=tournament&id={{ $tournament->id }}"
-                class="text-xs text-green-700 hover:underline ml-4">
-                    Ver
-                </a>
-            @else
-                <a href="{{ route('admin.matches.edit', $match) }}?from=tournament&id={{ $tournament->id }}"
-                class="text-xs text-blue-600 hover:underline ml-4">
-                    Cargar resultado
-                </a>
-            @endif
+            </div>
+
+            {{-- Marcador / Fecha --}}
+            <div class="text-center flex-shrink-0">
+                @if($match->status === 'finished')
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-bold {{ $homeWins ? 'text-green-700' : 'text-gray-500' }}">
+                            {{ $match->home_score }}
+                        </span>
+                        <span class="text-gray-300 text-sm">—</span>
+                        <span class="text-xl font-bold {{ $awayWins ? 'text-green-700' : 'text-gray-500' }}">
+                            {{ $match->away_score }}
+                        </span>
+                    </div>
+                    @if(!is_null($match->home_penalties))
+                        <span class="text-xs text-blue-500 block">
+                            ({{ $match->home_penalties }}-{{ $match->away_penalties }} pen)
+                        </span>
+                    @endif
+                    <span class="text-xs text-gray-400 block mt-1">
+                        {{ $match->played_at->format('d/m H:i') }}
+                    </span>
+                    <span class="text-xs text-green-600 font-medium">Finalizado</span>
+                @else
+                    <div class="text-gray-400 text-sm font-medium">vs</div>
+                    <span class="text-xs text-gray-400 block">{{ $match->played_at->format('d/m H:i') }}</span>
+                    <span class="text-xs text-blue-500">Programado</span>
+                @endif
+            </div>
+
+            {{-- Equipo visitante --}}
+            <div class="flex items-center gap-2 w-5/12 justify-start">
+                @if($awayWins)
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 flex-shrink-0"></span>
+                @else
+                    <span class="w-2.5 h-2.5 rounded-full bg-transparent flex-shrink-0"></span>
+                @endif
+                <span class="font-medium {{ $awayWins ? 'text-green-700 font-bold' : 'text-gray-700' }}">
+                    {{ $match->awayTeam?->name ?? '(Equipo eliminado)' }}
+                </span>
+            </div>
+
         </div>
         @endforeach
     </div>
+</div>
     @endforeach
 </div>
 @endif
@@ -454,4 +510,17 @@
             </div>
         </div>
     </div>
+<script>
+function toggleSection(id) {
+    const section = document.getElementById(id);
+    const icon = document.getElementById(id + '-icon');
+    if (section.classList.contains('hidden')) {
+        section.classList.remove('hidden');
+        icon.textContent = '∧';
+    } else {
+        section.classList.add('hidden');
+        icon.textContent = '∨';
+    }
+}
+</script>
 @endsection

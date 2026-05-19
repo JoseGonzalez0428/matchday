@@ -69,7 +69,7 @@
             </thead>
             <tbody>
                 @foreach($team->groups as $group)
-                <tr class="border-t hover:bg-gray-50">
+                <tr class="border-t hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ route('admin.tournaments.show', $group->tournament) }}'">
                     <td class="px-4 py-3 font-medium">{{ $group->tournament->name }}</td>
                     <td class="px-4 py-3">Grupo {{ $group->name }}</td>
                     <td class="px-4 py-3">
