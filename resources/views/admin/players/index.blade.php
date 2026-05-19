@@ -3,69 +3,91 @@
 @section('title', 'Jugadores — ' . $team->name)
 
 @section('content')
-<div class="flex justify-between items-center mb-6">
-    <div>
-        <h1 class="text-3xl font-bold text-green-800">👤 Jugadores</h1>
-        <p class="text-gray-500 mt-1">{{ $team->name }}</p>
-    </div>
-    <div class="flex flex-wrap gap-2">
-        <a href="{{ route('admin.teams.show', $team) }}"
-           class="px-4 py-2 rounded-lg border hover:bg-gray-50 text-gray-600 text-sm">
-            ← Volver al equipo
-        </a>
-        <a href="{{ route('admin.teams.players.create', $team) }}"
-           class="bg-green-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-800">
-            + Nuevo jugador
-        </a>
-    </div>
-</div>
+<div class="max-w-6xl mx-auto space-y-6">
 
-<div class="bg-white rounded-xl shadow overflow-hidden">
-    <div class="overflow-x-auto"><table class="w-full text-sm">
-        <thead class="bg-green-700 text-white">
-            <tr>
-                <th class="text-left px-4 py-3">#</th>
-                <th class="text-left px-4 py-3">Nombre</th>
-                <th class="text-left px-4 py-3">Posición</th>
-                <th class="text-left px-4 py-3">Nacionalidad</th>
-                <th class="px-4 py-3">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($players as $player)
-            <tr class="border-t hover:bg-green-50 cursor-pointer" onclick="window.location='{{ route('admin.teams.players.show', [$team, $player]) }}'">
-                <td class="px-4 py-3 font-bold text-green-700">{{ $player->dorsal }}</td>
-                <td class="px-4 py-3 font-medium">{{ $player->name }}</td>
-                <td class="px-4 py-3">
-                    <span class="px-2 py-1 rounded text-xs font-medium
-                        {{ $player->position === 'GK'  ? 'bg-yellow-100 text-yellow-700' : '' }}
-                        {{ $player->position === 'DEF' ? 'bg-blue-100 text-blue-700' : '' }}
-                        {{ $player->position === 'MID' ? 'bg-green-100 text-green-700' : '' }}
-                        {{ $player->position === 'FWD' ? 'bg-red-100 text-red-700' : '' }}">
-                        {{ \App\Helpers\StatusHelper::position($player->position) }}
-                    </span>
-                </td>
-                <td class="px-4 py-3 text-gray-500">{{ $player->nationality ?? '—' }}</td>
-                <td class="px-4 py-3 flex gap-2 justify-center">
-                    <a href="{{ route('admin.teams.players.show', [$team, $player]) }}"
-                        class="text-green-700 hover:underline">Ver</a>
-                    <a href="{{ route('admin.teams.players.edit', [$team, $player]) }}"
-                       class="text-blue-600 hover:underline">Editar</a>
-                    <button type="button"
-                            onclick="confirmDelete('{{ route('admin.teams.players.destroy', [$team, $player]) }}', '¿Eliminar este jugador? Esta acción no se puede deshacer.')"
-                            class="text-red-600 hover:underline">
-                        Eliminar
-                    </button>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="5" class="px-4 py-8 text-center text-gray-400">
-                    No hay jugadores registrados en este equipo.
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table></div>
+    {{-- Encabezado Principal --}}
+    <div class="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-4 pb-5 border-b border-gray-100">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-black text-gray-800 flex items-center justify-center sm:justify-start gap-2">
+                <span class="text-green-600">👤</span> Jugadores
+            </h1>
+            <p class="text-sm font-medium text-gray-400 mt-1">{{ $team->name }}</p>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-2.5 w-full sm:w-auto">
+            <a href="{{ route('admin.teams.show', $team) }}"
+               class="w-full sm:w-auto inline-flex items-center justify-center text-xs font-bold text-gray-600 hover:text-gray-800 bg-white border border-gray-200 px-4 py-2.5 rounded-xl shadow-sm transition-all whitespace-nowrap">
+                ← Volver al equipo
+            </a>
+            <a href="{{ route('admin.teams.players.create', $team) }}"
+               class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-green-700 hover:bg-green-800 text-white font-bold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-all whitespace-nowrap">
+                ➕ Nuevo jugador
+            </a>
+        </div>
+    </div>
+
+    {{-- Tabla de Jugadores --}}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50 border-b border-gray-100 text-gray-500 uppercase font-bold tracking-wider text-xs">
+                    <tr>
+                        <th class="px-6 py-4 w-20 text-center">#</th>
+                        <th class="px-6 py-4">Nombre</th>
+                        <th class="px-6 py-4">Posición</th>
+                        <th class="px-6 py-4">Nacionalidad</th>
+                        <th class="px-6 py-4 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @forelse($players as $player)
+                    <tr class="hover:bg-slate-50/50 transition-colors cursor-pointer group" onclick="window.location='{{ route('admin.teams.players.show', [$team, $player]) }}'">
+                        <td class="px-6 py-4 text-center font-mono font-black text-green-700 text-base">
+                            {{ $player->dorsal }}
+                        </td>
+                        <td class="px-6 py-4 font-bold text-gray-800 group-hover:text-green-700 transition-colors">
+                            {{ $player->name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border
+                                {{ $player->position === 'GK'  ? 'bg-yellow-50 text-yellow-700 border-yellow-100' : '' }}
+                                {{ $player->position === 'DEF' ? 'bg-blue-50 text-blue-700 border-blue-100' : '' }}
+                                {{ $player->position === 'MID' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : '' }}
+                                {{ $player->position === 'FWD' ? 'bg-rose-50 text-rose-700 border-rose-100' : '' }}">
+                                {{ \App\Helpers\StatusHelper::position($player->position) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-500 font-medium">
+                            {{ $player->nationality ?? '—' }}
+                        </td>
+                        <td class="px-6 py-4" onclick="event.stopPropagation()">
+                            <div class="flex items-center justify-center gap-3 font-semibold text-xs">
+                                <a href="{{ route('admin.teams.players.show', [$team, $player]) }}"
+                                   class="text-green-600 hover:text-green-800 hover:underline transition-colors">Ver</a>
+                                <span class="text-gray-200">|</span>
+                                <a href="{{ route('admin.teams.players.edit', [$team, $player]) }}"
+                                   class="text-blue-600 hover:text-blue-800 hover:underline transition-colors">Editar</a>
+                                <span class="text-gray-200">|</span>
+                                <button type="button"
+                                        onclick="confirmDelete('{{ route('admin.teams.players.destroy', [$team, $player]) }}', '¿Eliminar este jugador? Esta acción no se puede deshacer.')"
+                                        class="text-red-500 hover:text-red-700 hover:underline transition-colors focus:outline-none">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-sm font-medium text-gray-400 bg-slate-50/30">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <span class="text-2xl">👥</span>
+                                <span>No hay jugadores registrados en este equipo.</span>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 @endsection

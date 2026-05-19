@@ -72,10 +72,12 @@
                             ? ($finalMatch->home_penalties > $finalMatch->away_penalties ? $finalMatch->homeTeam : $finalMatch->awayTeam)
                             : ($finalMatch->home_score > $finalMatch->away_score ? $finalMatch->homeTeam : $finalMatch->awayTeam);
                     @endphp
-                    <button onclick="document.getElementById('champion-modal').classList.remove('hidden')"
-                            class="inline-flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all">
-                        ⭐ Ver Campeón
-                    </button>
+                    @if($tournament->status === 'finished')
+                        <button onclick="document.getElementById('champion-modal').classList.remove('hidden')"
+                                class="inline-flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all">
+                            ⭐ Ver Campeón
+                        </button>
+                    @endif
                     @if($tournament->status !== 'finished')
                         <form method="POST" action="{{ route('admin.tournaments.next-round', $tournament) }}">
                             @csrf
