@@ -41,7 +41,7 @@
         </thead>
         <tbody>
             @forelse($teams as $team)
-            <tr class="border-t hover:bg-gray-50">
+            <tr class="border-t hover:bg-green-50 cursor-pointer" onclick="window.location='{{ route('admin.teams.show', $team) }}'">
                 <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
                         @if($team->shield_url)

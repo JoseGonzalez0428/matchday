@@ -33,7 +33,7 @@
         </thead>
         <tbody>
             @forelse($players as $player)
-            <tr class="border-t hover:bg-gray-50">
+            <tr class="border-t hover:bg-green-50 cursor-pointer" onclick="window.location='{{ route('admin.teams.players.show', [$team, $player]) }}'">
                 <td class="px-4 py-3 font-bold text-green-700">{{ $player->dorsal }}</td>
                 <td class="px-4 py-3 font-medium">{{ $player->name }}</td>
                 <td class="px-4 py-3">

@@ -22,7 +22,7 @@
         </thead>
         <tbody>
             @forelse($matches as $match)
-            <tr class="border-t hover:bg-gray-50">
+            <tr class="border-t hover:bg-green-50 cursor-pointer" onclick="window.location='{{ route('admin.matches.show', $match) }}'">
                 <td class="px-4 py-3 text-gray-500">{{ $match->tournament->name }}</td>
                 <td class="px-4 py-3 font-medium">{{ $match->homeTeam?->name ?? '(Equipo eliminado)' }}</td>
                 <td class="px-4 py-3 text-center font-bold">

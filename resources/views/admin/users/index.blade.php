@@ -24,7 +24,7 @@
         </thead>
         <tbody>
             @forelse($captains as $captain)
-            <tr class="border-t hover:bg-gray-50">
+            <tr class="border-t hover:bg-green-50 cursor-pointer" onclick="window.location='{{ route('admin.users.edit', $captain) }}'">
                 <td class="px-4 py-3 font-medium">{{ $captain->name }}</td>
                 <td class="px-4 py-3 text-gray-500">{{ $captain->email }}</td>
                 <td class="px-4 py-3">
